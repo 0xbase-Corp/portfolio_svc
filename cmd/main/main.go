@@ -24,7 +24,7 @@ func main() {
 
 	routes.PortfolioRoutes(r, db)
 
-	if err := r.Run(configs.EnvConfigVars.Port); err != nil {
+	if err := r.Run(configs.GetPort()); err != nil {
 		log.Println("Server failed to start ", err)
 	}
 }

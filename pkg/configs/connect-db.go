@@ -9,12 +9,9 @@ import (
 )
 
 func GetDB() *gorm.DB {
-	// Get the environment variables
-	InitEnvConfigs()
-
 	// Database connection string
 
-	dsn := EnvConfigVars.DatabaseUrl
+	dsn := GetDatabaseUrl()
 
 	// Open the connection to the database
 

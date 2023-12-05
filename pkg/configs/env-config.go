@@ -6,10 +6,20 @@ import (
 	"github.com/spf13/viper"
 )
 
-var EnvConfigVars *EnvConfigs
+var envConfigVars *EnvConfigs
 
 func InitEnvConfigs() {
-	EnvConfigVars, _ = loadEnvVariables()
+	var err error
+	envConfigVars, err = loadEnvVariables()
+	if err != nil {
+		log.Fatalf("Failed to load environment variables: %v", err)
+	}
+}
+func GetDatabaseUrl() string {
+	return envConfigVars.DatabaseUrl
+}
+func GetPort() string {
+	return envConfigVars.Port
 }
 
 type EnvConfigs struct {
