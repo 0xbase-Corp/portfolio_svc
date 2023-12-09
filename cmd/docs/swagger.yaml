@@ -1,5 +1,17 @@
+basePath: /api/v1
+host: localhost:5050
 info:
-  contact: {}
+  contact:
+    email: help@0xbase.org
+    name: 0xSantos
+    url: http://www.0xbase.org
+  description: This is Portfolio server API documentation.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: 0xBase-Corp API
+  version: "1.0"
 paths:
   /db/test/healthy:
     get:

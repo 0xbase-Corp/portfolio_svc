@@ -1,8 +1,22 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is Portfolio server API documentation.",
+        "title": "0xBase-Corp API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "0xSantos",
+            "url": "http://www.0xbase.org",
+            "email": "help@0xbase.org"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:5050",
+    "basePath": "/api/v1",
     "paths": {
         "/db/test/healthy": {
             "get": {

@@ -26,5 +26,7 @@ Repository Layout is based on golang community recomneded best practices. More o
 
 
 ## To Update Swagger 
-``` swag init -g cmd/0xbase/main.go -o cmd/docs
+``` 
+swag init -g cmd/0xbase/main.go -o cmd/docs
 ```
+Once the server is up, the swagger UI will be available at http://localhost:5050/swagger/index.html

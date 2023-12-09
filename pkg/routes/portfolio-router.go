@@ -1,8 +1,8 @@
 package routes
 
 import (
+	Controllers "github.com/0xbase-Corp/portfolio_svc/pkg/controllers"
 	"github.com/gin-gonic/gin"
-	Controllers "github.com/oxbase/portfolio_svc/pkg/controllers"
 	"gorm.io/gorm"
 )
 
