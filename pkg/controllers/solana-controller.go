@@ -11,6 +11,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary ping example
+// @Schemes
+// @Description do ping
+// @Tags example
+// @Accept json
+// @Produce json
+// @Success 200 {string} Helloworld
+// @Router /solana/portfolio/:sol-address [get]
 func SolanaController(c *gin.Context, db *gorm.DB) {
 	solAddress := c.Param("sol-address")
 	moralisAccessKey := c.GetHeader("x-api-key")
