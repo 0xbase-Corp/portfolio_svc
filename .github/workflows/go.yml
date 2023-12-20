@@ -23,12 +23,9 @@ jobs:
         
     - name: Format
       run: go fmt ./...
-      
+
     - name: Build
       run: go build -v ./...
 
     - name: Test
       run: go test -v ./...
-
-    - name: Build Docker Image
-      run: docker build -t my-golang-app .
