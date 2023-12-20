@@ -7,7 +7,14 @@ The Portfolio Backend service is responsible for handling all the requests made 
 ## How to Run
 1. Copy all the contents from `example.env` into a new file `app.env`  and replace all *XXXX* with the correct values. 
 > Donot commit **app.env** file
-2. Run `go run cmd/main/main.go` from the root directory
+2. After installing dependencies run `go run cmd/main/main.go` from the root directory
+
+### Alternatively
+
+The project can also be started by simply 
+```
+    docker-compose up
+```
 
 Navigatge to `localhost:5050/healthy` for health check of the server
 
