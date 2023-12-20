@@ -23,3 +23,5 @@ go.work
 # Environment Variable
 app.env
 
+#Build file
+main-out
