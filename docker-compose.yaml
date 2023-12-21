@@ -3,8 +3,11 @@ services:
   postgres:
     image: postgres:latest
     restart: always
-    env_file:
-      - app.env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: portfolio
     volumes:
       - db_data:/var/lib/mysql
     ports:
@@ -14,6 +17,7 @@ services:
   
   portfolio_svc:
     build: ./
+    restart: always
     depends_on:
       - postgres
     volumes:
