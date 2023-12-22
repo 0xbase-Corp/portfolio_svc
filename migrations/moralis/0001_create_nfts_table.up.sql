@@ -1,0 +1,1 @@
+-- Create nfts table 

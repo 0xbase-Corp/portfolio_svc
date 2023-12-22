@@ -1,0 +1,1 @@
+-- Create bitcoin_btc_com_v1 table 

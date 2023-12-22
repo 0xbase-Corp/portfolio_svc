@@ -1,0 +1,1 @@
+-- Create portfolio_annotations table 

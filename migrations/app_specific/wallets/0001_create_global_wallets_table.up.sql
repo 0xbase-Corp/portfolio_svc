@@ -1,0 +1,1 @@
+-- Create global_wallets table 
