@@ -11,7 +11,7 @@ import (
 func GetDB() *gorm.DB {
 	// Database connection string
 
-	dsn := envConfigVars.DatabaseUrl
+	dsn := EnvConfigVars.DatabaseUrl
 
 	// Open the connection to the database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
