@@ -11,7 +11,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      - 5432:5432
+      - 5555:5432
     networks:
       - xbase 
   
@@ -23,7 +23,7 @@ services:
     volumes:
      - db_data:/var/lib/mysql
     ports:
-      - "5050:5050"
+      - 5050:5050
     networks:
       - xbase
 
@@ -34,3 +34,6 @@ networks:
 
 volumes:
   db_data:
+    driver: local
+    name: portfolio_db_data
+
