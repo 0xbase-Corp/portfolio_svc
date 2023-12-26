@@ -1,1 +1,0 @@
--- Create nft_list table 
