@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -16,25 +17,22 @@ import (
 // PingExample godoc
 //
 //	@Summary		ping example
-//	@Schemes		models.SolanaPortfolio
+//	@Schemes		models.BtcChainAPI
 //	@Description	do ping
 //	@Tags			example
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{string}	Helloworld
-//	@Router			/portfolio/solana/:sol-address [get]
-func SolanaController(c *gin.Context, db *gorm.DB) {
-	solAddress := c.Param("sol-address")
-	moralisAccessKey := c.GetHeader("x-api-key")
+//	@Success		200	{string} Helloworld
+//	@Router			/portfolio/btc/:btc-address [get]
+func BitcoinController(c *gin.Context, db *gorm.DB) {
+	btcAddress := c.Param("btc-address")
 
-	url := "https://solana-gateway.moralis.io/account/mainnet/" + solAddress + "/portfolio"
+	url := "https://chain.api.btc.com/v3/address/" + btcAddress
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	req.Header.Add("x-api-key", moralisAccessKey)
-
 	//send the request
 	client := &http.Client{}
 
@@ -49,15 +47,16 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	var solResponse models.SolanaPortfolio
-	if err := json.Unmarshal(body, &solResponse); err != nil {
+	fmt.Println("body ", body)
+	var btcResponse models.BtcChainAPI
+	if err := json.Unmarshal(body, &btcResponse); err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Println("BTC PResponse ", btcResponse)
 	//TODO: add the data into database
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": solResponse,
+		"data": btcResponse,
 	})
 }

@@ -13,5 +13,7 @@ var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 
 	v1.GET("/test", func(c *gin.Context) { Controllers.TestController(c, db) })
 
-	v1.GET("/solana/portfolio/:sol-address", func(c *gin.Context) { Controllers.SolanaController(c, db) })
+	v1.GET("/portfolio/solana/:sol-address", func(c *gin.Context) { Controllers.SolanaController(c, db) })
+
+	v1.GET("/portfolio/btc/:btc-address", func(c *gin.Context) { Controllers.BitcoinController(c, db) })
 }
