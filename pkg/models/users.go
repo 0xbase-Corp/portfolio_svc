@@ -1,14 +1,19 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"log"
+	"time"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	UserId   string `gorm:"type:varchar(15);unique_index" json:"user_id"`
-	Email    string `json:"email"`
-	UserName string `json:"user_name"`
+	UserId           uint      `gorm:"primaryKey"` // GORM automatically uses fields with name 'ID' as the primary key
+	Username         string    `gorm:"size:255;not null"`
+	Email            string    `gorm:"size:255;unique;not null"`
+	HashedPublicKey  string    `gorm:"type:text"`
+	OtherUserDetails string    `gorm:"type:text"`
+	SignupDate       time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 }
 
 func GetAllUsers(db *gorm.DB) []User {

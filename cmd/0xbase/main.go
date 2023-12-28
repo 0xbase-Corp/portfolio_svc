@@ -5,6 +5,7 @@ import (
 
 	docs "github.com/0xbase-Corp/portfolio_svc/cmd/docs"
 	"github.com/0xbase-Corp/portfolio_svc/pkg/configs"
+	"github.com/0xbase-Corp/portfolio_svc/pkg/migrations"
 	"github.com/0xbase-Corp/portfolio_svc/pkg/routes"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -32,6 +33,13 @@ func main() {
 	configs.InitEnvConfigs()
 
 	db := configs.GetDB()
+
+	log.Println("Starting database migration...")
+	err := migrations.Migrate(db, "../../migrations") // Call the Migrate function from migrations package
+	if err != nil {
+		log.Fatalf("Database migration failed: %v", err)
+	}
+	log.Println("Database migration completed successfully.")
 
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api/v1"
