@@ -1,8 +1,9 @@
 module github.com/0xbase-Corp/portfolio_svc
 
-go 1.20
+go 1.21.4
 
 require (
+	github.com/0xbase-Corp/portfolio_svc/pkg/migrations v0.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/spf13/viper v1.17.0
 	github.com/swaggo/files v1.0.1
@@ -69,3 +70,5 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/0xbase-Corp/portfolio_svc/pkg/migrations => /app/migrations

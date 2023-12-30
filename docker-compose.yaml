@@ -9,7 +9,7 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_DB: portfolio
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
     ports:
       - 5555:5432
     networks:
@@ -20,12 +20,12 @@ services:
     restart: always
     depends_on:
       - postgres
-    volumes:
-     - db_data:/var/lib/mysql
     ports:
       - 5050:5050
     networks:
       - xbase
+    env_file:
+      - app.env
 
   
 networks:

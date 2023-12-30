@@ -35,7 +35,7 @@ func main() {
 	db := configs.GetDB()
 
 	log.Println("Starting database migration...")
-	err := migrations.Migrate(db, "../../migrations") // Call the Migrate function from migrations package
+	err := migrations.Migrate(db) // Call the Migrate function from migrations package
 	if err != nil {
 		log.Fatalf("Database migration failed: %v", err)
 	}

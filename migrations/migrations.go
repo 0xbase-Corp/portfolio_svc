@@ -1,10 +1,11 @@
-package main
+package migrations
 
 import (
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"gorm.io/gorm"
@@ -12,33 +13,45 @@ import (
 
 // Migrate applies the migration files to the database in the correct order.
 func Migrate(db *gorm.DB) error {
-	migrationsDir := "./migrations" // Adjust the path to your migrations directory
+	migrationsDir := "/app/migrations" // Adjust the path to your migrations directory
 
 	// Store all migration files in a slice
 	var migrationFiles []string
 
-	// Collect all .up.sql files
-	subDirs, err := os.ReadDir(migrationsDir)
+	// Recursive function to collect all .up.sql files
+	var collectMigrationFiles func(string) error
+	collectMigrationFiles = func(path string) error {
+		entries, err := os.ReadDir(path)
+		if err != nil {
+			return err
+		}
+
+		for _, entry := range entries {
+			fullPath := filepath.Join(path, entry.Name())
+			if entry.IsDir() {
+				err := collectMigrationFiles(fullPath)
+				if err != nil {
+					return err
+				}
+			} else if strings.HasSuffix(entry.Name(), ".up.sql") {
+				migrationFiles = append(migrationFiles, fullPath)
+			}
+		}
+		return nil
+	}
+
+	// Start the recursive file collection
+	err := collectMigrationFiles(migrationsDir)
 	if err != nil {
 		return err
 	}
 
-	for _, dir := range subDirs {
-		if dir.IsDir() {
-			files, err := os.ReadDir(filepath.Join(migrationsDir, dir.Name()))
-			if err != nil {
-				return err
-			}
-			for _, file := range files {
-				if strings.HasSuffix(file.Name(), ".up.sql") {
-					migrationFiles = append(migrationFiles, filepath.Join(migrationsDir, dir.Name(), file.Name()))
-				}
-			}
-		}
-	}
-
-	// Sort the migration files by their names (which include the sequence number)
-	sort.Strings(migrationFiles)
+	// Sort the migration files by their sequence number
+	sort.Slice(migrationFiles, func(i, j int) bool {
+		seqNumI, _ := strconv.Atoi(strings.Split(filepath.Base(migrationFiles[i]), "_")[0])
+		seqNumJ, _ := strconv.Atoi(strings.Split(filepath.Base(migrationFiles[j]), "_")[0])
+		return seqNumI < seqNumJ
+	})
 
 	// Create a table to track which migrations have been run
 	db.Exec("CREATE TABLE IF NOT EXISTS migrations (name VARCHAR PRIMARY KEY)")

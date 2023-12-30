@@ -5,5 +5,7 @@ CREATE TABLE IF NOT EXISTS token_prices (
     exchange_name VARCHAR(255),
     exchange_address VARCHAR(255),
     native_price_value BIGINT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (token_mint) REFERENCES tokens(mint)
 );

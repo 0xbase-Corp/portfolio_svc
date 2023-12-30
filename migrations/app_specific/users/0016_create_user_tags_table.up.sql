@@ -4,11 +4,14 @@ CREATE TABLE IF NOT EXISTS user_tags (
     portfolio_id INTEGER,
     token_id INTEGER,
     nft_id INTEGER,
-    tag_id INTEGER,
+    tag TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (portfolio_id) REFERENCES portfolios(portfolio_id),
+    FOREIGN KEY (portfolio_id) REFERENCES pseudonymous_portfolios(portfolio_id),
     FOREIGN KEY (token_id) REFERENCES tokens(token_id),
     FOREIGN KEY (nft_id) REFERENCES nfts(nft_id),
-    FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
-    -- Ensure that portfolios, tokens, nfts, and tags tables are created before this script is run
+    CHECK (
+        (portfolio_id IS NOT NULL)::integer +
+        (token_id IS NOT NULL)::integer +
+        (nft_id IS NOT NULL)::integer = 1
+    )
 );
