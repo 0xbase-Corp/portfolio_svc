@@ -23,9 +23,6 @@ go.work
 # Environment Variable
 app.env
 
-<<<<<<< HEAD
 #Build file
 main-out
-=======
 create_migrations.bat
->>>>>>> dc342bf (discarding a local bat file)
