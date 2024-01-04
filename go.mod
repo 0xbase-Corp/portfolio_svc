@@ -1,6 +1,6 @@
 module github.com/0xbase-Corp/portfolio_svc
 
-go 1.21.4
+go 1.20
 
 require (
 	github.com/0xbase-Corp/portfolio_svc/pkg/migrations v0.0.0
