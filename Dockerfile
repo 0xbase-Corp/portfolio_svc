@@ -8,7 +8,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 
 # Copy the migrations directory
-COPY pkg/db/migrations /app/migrations
+COPY pkg/migrations /app/migrations
 
 # Download all dependencies and tidy up
 RUN go mod download && go mod tidy
