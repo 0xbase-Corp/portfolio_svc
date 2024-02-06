@@ -1,23 +1,54 @@
 package models
 
-type BtcChainAPI struct {
-	Data    ChainData `json:"data"`
-	ErrCode int16     `json:"error_code"`
-	ErrNo   int16     `json:"err_no"`
-	Message string    `json:"message"`
-	Status  string    `json:"status"`
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
+// BitcoinBtcComV1 represents the bitcoin_btc_com_v1 table.
+type BitcoinBtcComV1 struct {
+	BtcAssetID  uint      `gorm:"primaryKey;autoIncrement"` // Primary key
+	WalletID    uint      `gorm:"not null"`                 // Foreign key to global_wallets
+	BtcUsdPrice float64   `gorm:"type:float"`
+	UpdatedAt   time.Time `gorm:""`
+	CreatedAt   time.Time `gorm:""`
 }
 
-type ChainData struct {
-	Address             string `json:"address"`
-	Received            int32  `json:"received"`
-	Sent                int32  `json:"sent"`
-	Balance             int32  `json:"balance"`
-	TxCount             int16  `json:"tx_count"`             //max value 32768
-	UnconfirmedTxCount  int16  `json:"unconformed_tx_count"` //max value 32768
-	UnconfirmedReceived int32  `json:"unconfirmed_received"`
-	UnconfirmedSent     int32  `json:"unconfirmed_sent"`
-	UnspentTxCount      int32  `json:"unspend_tx_count"`
-	FirstTx             string `json:"first_tx"`
-	LastTx              string `json:"last_tx"`
+// BitcoinAddressInfo represents the bitcoin_address_info table.
+type BitcoinAddressInfo struct {
+	AddressID           uint      `gorm:"primaryKey;autoIncrement"`
+	BtcAssetID          uint      `gorm:"not null"`
+	Received            float64   `gorm:"type:float"`
+	Sent                float64   `gorm:"type:float"`
+	Balance             float64   `gorm:"type:float"`
+	TxCount             int       `gorm:"type:int"`
+	UnconfirmedTxCount  int       `gorm:"type:int"`
+	UnconfirmedReceived float64   `gorm:"type:float"`
+	UnconfirmedSent     float64   `gorm:"type:float"`
+	UnspentTxCount      int       `gorm:"type:int"`
+	FirstTx             string    `gorm:"type:text"`
+	LastTx              string    `gorm:"type:text"`
+	UpdatedAt           time.Time `gorm:""`
+	CreatedAt           time.Time `gorm:""`
+}
+
+// SaveBitcoinData saves a BitcoinBtcComV1 record and a BitcoinAddressInfo record.
+// btcComV1 is optional and can be nil.
+func SaveBitcoinData(tx *gorm.DB, btcAddressInfo *BitcoinAddressInfo, btcComV1 *BitcoinBtcComV1) error {
+	// Check if btcComV1 is not nil before saving
+	if btcComV1 != nil {
+		if result := tx.Create(btcComV1); result.Error != nil {
+			return result.Error
+		}
+	}
+
+	// Check if btcAddressInfo is not nil before saving
+	if btcAddressInfo != nil {
+		if result := tx.Create(btcAddressInfo); result.Error != nil {
+			return result.Error
+		}
+	}
+
+	return nil
 }
