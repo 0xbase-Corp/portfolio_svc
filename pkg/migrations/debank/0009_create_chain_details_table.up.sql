@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS chain_details (
     native_token_id VARCHAR(255),
     wrapped_token_id VARCHAR(255),
     usd_value DECIMAL,
-    user_address VARCHAR(255) REFERENCES evm_assets_debank_v1(user_address),
-    updated_at TIMESTAMP,
-    created_at TIMESTAMP
+    wallet_id INTEGER NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (wallet_id) REFERENCES global_wallets(wallet_id)
 );

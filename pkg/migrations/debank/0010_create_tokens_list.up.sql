@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS tokens_list (
     token_id VARCHAR(255) PRIMARY KEY,
+    evm_asset_id INTEGER NOT NULL,
     contract_id VARCHAR(255),
     inner_id VARCHAR(255),
     chain VARCHAR(255),
@@ -15,5 +16,6 @@ CREATE TABLE IF NOT EXISTS tokens_list (
     pay_token_json TEXT,
     collection_id VARCHAR(255),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (evm_asset_id) REFERENCES evm_assets_debank_v1(evm_asset_id)
 );
