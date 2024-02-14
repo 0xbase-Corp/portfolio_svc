@@ -80,9 +80,24 @@ func BitcoinController(c *gin.Context, db *gorm.DB) {
 
 	// Begin a new transaction
 	tx := db.Begin()
-	// logic to create/fetch a BitcoinBtcComV1 record
-	var btcComV1 models.BitcoinBtcComV1
+	// Assuming wallet is the GlobalWallet record found or created
+	walletID := wallet.WalletID
 
+	// Initialize btcComV1 and set the WalletID
+	var btcComV1 models.BitcoinBtcComV1
+	btcComV1.WalletID = uint(walletID)
+
+	// Save btcComV1 to the database to get a valid BtcAssetID
+	if err := tx.Create(&btcComV1).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save btcComV1 record: " + err.Error()})
+		return
+	}
+
+	// Now that btcComV1 is saved, it has a valid BtcAssetID. Set this ID for BitcoinAddressInfo
+	apiResponse.Data.Data.BtcAssetID = btcComV1.BtcAssetID
+
+	// Proceed to call SaveBitcoinData with the updated BitcoinAddressInfo and btcComV1
 	if err := models.SaveBitcoinData(tx, &apiResponse.Data.Data, &btcComV1); err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save Bitcoin address info: " + err.Error()})
