@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS token_prices (
 );
 
 -- Add an index on token_mint for faster searches
-CREATE INDEX IF NOT EXISTS idx_token_mint ON token_prices(token_mint);Personally talking to mention.
+CREATE INDEX IF NOT EXISTS idx_token_mint ON token_prices(token_mint);
