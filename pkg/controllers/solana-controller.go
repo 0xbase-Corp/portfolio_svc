@@ -14,10 +14,12 @@ import (
 
 // SolanaController handles requests for Solana portfolio information.
 func SolanaController(c *gin.Context, db *gorm.DB) {
+
 	log.Println("SolanaController invoked")
 	// Extract the Solana address from the request parameter.
 	solAddress := c.Param("sol-address")
 	log.Println("for address:", solAddress)
+
 	// Extract the Moralis API key from the request header.
 	moralisAccessKey := c.GetHeader("x-api-key")
 
@@ -65,14 +67,14 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 		return
 	}
 	log.Println("Received response from Moralis API")
-	// Check if a wallet with the given Solana address exists in the global_wallets table.
+
+	// Check if a wallet with the given Solana address exists in the database.
 	var wallet models.GlobalWallet
 	err = db.Where("wallet_address = ?", solAddress).First(&wallet).Error
 	if err != nil {
-		// If the wallet doesn't exist, create a new one.
 		if err == gorm.ErrRecordNotFound {
+			// If the wallet doesn't exist, create a new one.
 			wallet = models.GlobalWallet{
-				PortfolioID:    0, // or nil, depending on the data type of PortfolioID
 				WalletAddress:  solAddress,
 				BlockchainType: "Solana",
 			}
@@ -86,9 +88,9 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 		}
 	}
 
-	// Prepare a SolanaAssetsMoralisV1 object with the response data.
+	// Prepare the SolanaAssetsMoralisV1 object with the response data.
 	solanaAsset := models.SolanaAssetsMoralisV1{
-		WalletID:         wallet.WalletID,
+		WalletID:         wallet.WalletID, // Assuming WalletID is the correct field name
 		Lamports:         response.NativeBalance.Lamports,
 		Solana:           response.NativeBalance.Solana,
 		TotalTokensCount: len(response.Tokens),
@@ -99,17 +101,10 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 	// Start a new database transaction.
 	tx := db.Begin()
 
-	// Update or create the SolanaAssetsMoralisV1 record.
-	if err := updateOrCreateSolanaAsset(tx, &solanaAsset); err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save Solana assets: " + err.Error()})
-		return
-	}
-	log.Println("Attempting to save data to the database")
-	// Save the Solana asset data along with the associated tokens and NFTs.
-	// The SaveSolanaData function will handle the creation of all these records.
+	// Attempt to save the Solana asset data along with the associated tokens and NFTs.
 	if err := models.SaveSolanaData(tx, &solanaAsset, response.Tokens, response.NFTs); err != nil {
 		tx.Rollback()
+		log.Println("Failed to save data to the database:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save data to the database: " + err.Error()})
 		return
 	}
@@ -123,36 +118,4 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 
 	// Send a success response.
 	c.JSON(http.StatusOK, gin.H{"message": "Data saved successfully"})
-
-}
-
-// updateOrCreateSolanaAsset updates an existing SolanaAssetsMoralisV1 record or creates a new one.
-func updateOrCreateSolanaAsset(tx *gorm.DB, asset *models.SolanaAssetsMoralisV1) error {
-	// Check if the asset record already exists for the given SolanaAssetID.
-	var existingAsset models.SolanaAssetsMoralisV1
-	result := tx.Where("solana_asset_id = ?", asset.SolanaAssetID).First(&existingAsset)
-
-	// If the record does not exist, create a new one.
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			// Create a new record without specifying SolanaAssetID.
-			newAsset := models.SolanaAssetsMoralisV1{
-				WalletID:         asset.WalletID,
-				Lamports:         asset.Lamports,
-				Solana:           asset.Solana,
-				TotalTokensCount: asset.TotalTokensCount,
-				TotalNftsCount:   asset.TotalNftsCount,
-				LastUpdatedAt:    asset.LastUpdatedAt,
-			}
-			if err := tx.Create(&newAsset).Error; err != nil {
-				return err
-			}
-			return nil
-		}
-		// Return any other error encountered during the query.
-		return result.Error
-	}
-
-	// If the record exists, update it with the new information.
-	return tx.Model(&existingAsset).Updates(asset).Error
 }
