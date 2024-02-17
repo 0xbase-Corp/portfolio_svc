@@ -26,3 +26,6 @@ app.env
 #Build file
 main-out
 create_migrations.bat
+
+.air.toml
+tmp/
