@@ -4,10 +4,10 @@ import (
 	"log"
 	"sync"
 
-	docs "github.com/0xbase-Corp/portfolio_svc/cmd/docs"
-	"github.com/0xbase-Corp/portfolio_svc/pkg/configs"
-	"github.com/0xbase-Corp/portfolio_svc/pkg/migrations"
-	"github.com/0xbase-Corp/portfolio_svc/pkg/routes"
+	"github.com/0xbase-Corp/portfolio_svc/api"
+	"github.com/0xbase-Corp/portfolio_svc/internal/routes"
+	"github.com/0xbase-Corp/portfolio_svc/shared/configs"
+	"github.com/0xbase-Corp/portfolio_svc/shared/migrations"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -33,7 +33,6 @@ var (
 //	@BasePath	/api/v1
 
 func main() {
-
 	//Loading Environment variables from app.env
 	configs.InitEnvConfigs()
 
@@ -51,7 +50,7 @@ func main() {
 	})
 
 	r := gin.Default()
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	api.SwaggerInfo.BasePath = "/api/v1"
 
 	//gin warning: "you trusted all proxies this is not safe. we recommend you to set a value"
 	r.ForwardedByClientIP = true

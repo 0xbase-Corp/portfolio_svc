@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/0xbase-Corp/portfolio_svc/pkg/models"
+	"github.com/0xbase-Corp/portfolio_svc/internal/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
