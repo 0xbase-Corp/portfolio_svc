@@ -12,6 +12,21 @@ import (
 	"gorm.io/gorm"
 )
 
+//	@BasePath	/api/v1
+// SolanaController godoc
+//
+// @Summary      Fetch Solana Portfolio Information
+// @Description  Retrieves portfolio information for a given Solana address using the Moralis API.
+// @Tags         solana
+// @Accept       json
+// @Produce      json
+// @Param        sol-address  path      string  true  "Solana Address"
+// @Param        x-api-key    header    string  true  "Moralis API Key"
+// @Success      200          {object}  struct{ Tokens []models.Token; NFTs []models.NFT; NativeBalance struct{ Lamports string; Solana string } "nativeBalance" }  "Returns portfolio information including tokens, NFTs, and native balance"
+// @Failure      400          {object}  struct{ Error string }  "Bad Request"
+// @Failure      500          {object}  struct{ Error string }  "Internal Server Error"
+// @Router       /portfolio/solana/:sol-address [get]
+
 // SolanaController handles requests for Solana portfolio information.
 func SolanaController(c *gin.Context, db *gorm.DB) {
 
