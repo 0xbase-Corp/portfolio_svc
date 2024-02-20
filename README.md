@@ -37,10 +37,21 @@ Repository Layout is based on golang community recomneded best practices. More o
 ## To Update Swagger
 
 ```
-swag init -g cmd/0xbase/main.go -o cmd/docs
+swag init -g cmd/0xbase/main.go -o docs/
 ```
 
 Once the server is up, the swagger UI will be available at http://localhost:5050/swagger/index.html
+
+## Air - Live reload for Go apps
+
+check for install (air)[https://github.com/cosmtrek/air]
+
+replace these command to .ait.toml file with and run `air`
+
+```
+  bin = "./tmp/0xbase"
+  cmd = "go build -o ./tmp/0xbase ./cmd/0xbase"
+```
 
 ## Migrations
 
