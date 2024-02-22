@@ -1,4 +1,4 @@
-# [[PT-XXX]](https://0xbase.atlassian.net/browse/PT-XXXX) - PR title
+# [PT-XXX](https://0xbase.atlassian.net/browse/PT-XXXX) - PR title
 
 ### Description
 
