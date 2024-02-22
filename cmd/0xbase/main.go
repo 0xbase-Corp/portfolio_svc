@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/0xbase-Corp/portfolio_svc/docs"
+	"github.com/0xbase-Corp/portfolio_svc/internal/middlewares"
 	"github.com/0xbase-Corp/portfolio_svc/internal/routes"
 	"github.com/0xbase-Corp/portfolio_svc/shared/configs"
 	"github.com/0xbase-Corp/portfolio_svc/shared/migrations"
@@ -50,6 +51,7 @@ func main() {
 	})
 
 	r := gin.Default()
+	r.Use(middlewares.CORSMiddleware())
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	//gin warning: "you trusted all proxies this is not safe. we recommend you to set a value"
