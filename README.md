@@ -44,7 +44,7 @@ Once the server is up, the swagger UI will be available at http://localhost:5050
 
 ## Air - Live reload for Go apps
 
-check for install (air)[https://github.com/cosmtrek/air]
+check for install [air](https://github.com/cosmtrek/air)
 
 replace these command to .ait.toml file with and run `air`
 
