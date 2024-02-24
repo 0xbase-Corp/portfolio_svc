@@ -3,6 +3,7 @@ module github.com/0xbase-Corp/portfolio_svc
 go 1.20
 
 require (
+	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/spf13/viper v1.17.0
 	github.com/swaggo/files v1.0.1
