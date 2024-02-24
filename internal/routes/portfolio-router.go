@@ -16,5 +16,8 @@ var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 
 	v1.GET("/portfolio/solana/:sol-address", func(c *gin.Context) { controllers.SolanaController(c, db) })
 
+	v1.GET("/portfolio/solana-wallet/:wallet-id", func(c *gin.Context) { controllers.GetSolanaController(c, db) })
+
 	v1.GET("/portfolio/btc/:btc-address", func(c *gin.Context) { controllers.BitcoinController(c, db) })
+
 }

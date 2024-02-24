@@ -5,9 +5,11 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/0xbase-Corp/portfolio_svc/internal/models"
+	"github.com/0xbase-Corp/portfolio_svc/shared/errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -132,5 +134,49 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 	}
 
 	// Send a success response.
-	c.JSON(http.StatusOK, gin.H{"message": "Data saved successfully"})
+	c.JSON(http.StatusOK, wallet)
+}
+
+// SolanaController godoc
+// @Summary      Show an account
+// @Description  get string by ID
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Router      /portfolio/solana/:wallet_id [get]
+func GetSolanaController(c *gin.Context, db *gorm.DB) {
+	wallet := models.GlobalWallet{}
+	walletID, err := strconv.Atoi(c.Param("wallet-id"))
+
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("invalid wallet id"))
+		return
+	}
+
+	/**
+	explain preload query
+
+	SELECT *
+	FROM global_wallets
+	LEFT JOIN solana_assets_moralis_v1 ON global_wallets.wallet_id = solana_assets_moralis_v1.wallet_id
+	LEFT JOIN tokens ON solana_assets_moralis_v1.solana_asset_id = tokens.solana_asset_id
+	LEFT JOIN nfts ON solana_assets_moralis_v1.solana_asset_id = nfts.solana_asset_id
+	WHERE global_wallets.wallet_id = ?
+	LIMIT 1;
+	*/
+
+	// Assuming db is your GORM database instance
+	err = db.
+		Preload("SolanaAssetsMoralisV1.Tokens").
+		Preload("SolanaAssetsMoralisV1.NFTS").
+		Preload("SolanaAssetsMoralisV1").
+		Where("wallet_id = ?", walletID).
+		First(&wallet).Error
+
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewNotFoundError("wallet not found"))
+		return
+	}
+
+	c.JSON(http.StatusOK, wallet)
 }

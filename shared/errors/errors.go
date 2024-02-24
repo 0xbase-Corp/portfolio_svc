@@ -9,8 +9,8 @@ import (
 
 type (
 	APIError struct {
-		Message string `json:"message,omitempty"`
 		Code    int    `json:"code"`
+		Message string `json:"message,omitempty"`
 	}
 )
 

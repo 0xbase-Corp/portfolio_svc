@@ -7,43 +7,62 @@ import (
 )
 
 // SolanaAssetsMoralisV1 represents the solana_assets_moralis_v1 table.
-type SolanaAssetsMoralisV1 struct {
-	SolanaAssetID    uint      `gorm:"primaryKey;autoIncrement"`
-	WalletID         int       `gorm:"not null;unique"`
-	Lamports         string    `gorm:"type:varchar(255)"`
-	Solana           string    `gorm:"type:varchar(255)"`
-	TotalTokensCount int       `gorm:"type:integer"`
-	TotalNftsCount   int       `gorm:"type:integer"`
-	LastUpdatedAt    time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+type (
+	SolanaAssetsMoralisV1 struct {
+		SolanaAssetID    uint      `gorm:"primaryKey;autoIncrement" json:"solana_asset_id"`
+		WalletID         int       `gorm:"not null;unique" json:"wallet_id"`
+		Lamports         string    `gorm:"type:varchar(255)" json:"lamports"`
+		Solana           string    `gorm:"type:varchar(255)" json:"solana"`
+		TotalTokensCount int       `gorm:"type:integer" json:"total_tokens_count"`
+		TotalNftsCount   int       `gorm:"type:integer" json:"total_nfts_count"`
+		LastUpdatedAt    time.Time `gorm:"default:CURRENT_TIMESTAMP"  json:"last_updated_at"`
+
+		// relations use in json responses (optional)
+		Tokens *[]Token `gorm:"foreignKey:SolanaAssetID" json:"tokens,omitempty"`
+		NFTS   *[]NFT   `gorm:"foreignKey:SolanaAssetID" json:"nfts,omitempty"`
+	}
+
+	// Token represents the tokens table.
+	Token struct {
+		TokenID                int       `gorm:"primary_key" json:"token_id"`
+		SolanaAssetID          int       `gorm:"not null" json:"solana_asset_id"`
+		AssociatedTokenAddress string    `gorm:"type:varchar(255)" json:"associated_token_address"`
+		Mint                   string    `gorm:"type:varchar(255)" json:"mint"`
+		AmountRaw              string    `gorm:"type:varchar(255)" json:"amount_raw"`
+		Amount                 string    `gorm:"type:varchar(255)" json:"amount"`
+		Decimals               string    `gorm:"type:varchar(255)" json:"decimals"`
+		Name                   string    `gorm:"type:varchar(255)" json:"name"`
+		Symbol                 string    `gorm:"type:varchar(50)" json:"symbol"`
+		UpdatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+		CreatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	}
+
+	// NFT represents the nfts table.
+	NFT struct {
+		NFTID                  int       `gorm:"primary_key" json:"nft_id"`
+		SolanaAssetID          int       `gorm:"not null" json:"solana_asset_id"`
+		AssociatedTokenAddress string    `gorm:"type:varchar(255)" json:"associated_token_address"`
+		Mint                   string    `gorm:"type:varchar(255)" json:"mint"`
+		AmountRaw              string    `gorm:"type:varchar(255)" json:"amount_raw"`
+		Decimals               string    `gorm:"type:varchar(255)" json:"decimals"`
+		Name                   string    `gorm:"type:varchar(255)" json:"name"`
+		Symbol                 string    `gorm:"type:varchar(50)" json:"symbol"`
+		UpdatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+		CreatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+		UserScore              int       `json:"userscore"`
+	}
+)
+
+func (SolanaAssetsMoralisV1) TableName() string {
+	return "solana_assets_moralis_v1"
 }
 
-// Token represents the tokens table.
-type Token struct {
-	TokenID                int       `gorm:"primary_key"`
-	SolanaAssetID          int       `gorm:"not null"`
-	AssociatedTokenAddress string    `gorm:"type:varchar(255)"`
-	Mint                   string    `gorm:"type:varchar(255):"`
-	AmountRaw              string    `gorm:"type:varchar(255)"`
-	Amount                 string    `gorm:"type:varchar(255)"`
-	Decimals               string    `gorm:"type:varchar(255)"`
-	Name                   string    `gorm:"type:varchar(255)"`
-	Symbol                 string    `gorm:"type:varchar(50)"`
-	UpdatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	CreatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+func (Token) TableName() string {
+	return "tokens"
 }
 
-// NFT represents the nfts table.
-type NFT struct {
-	NFTID                  int       `gorm:"primary_key"`
-	SolanaAssetID          int       `gorm:"not null"`
-	AssociatedTokenAddress string    `gorm:"type:varchar(255)"`
-	Mint                   string    `gorm:"type:varchar(255)"`
-	AmountRaw              string    `gorm:"type:varchar(255)"`
-	Decimals               string    `gorm:"type:varchar(255)"`
-	Name                   string    `gorm:"type:varchar(255)"`
-	Symbol                 string    `gorm:"type:varchar(50)"`
-	UpdatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	CreatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+func (NFT) TableName() string {
+	return "nfts"
 }
 
 func SaveSolanaData(tx *gorm.DB, solanaAsset *SolanaAssetsMoralisV1, tokens []Token, nfts []NFT) error {
