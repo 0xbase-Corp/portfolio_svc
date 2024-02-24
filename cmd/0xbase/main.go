@@ -51,6 +51,7 @@ func main() {
 	})
 
 	r := gin.Default()
+	r.Use(middlewares.CORSMiddleware())
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	r.Use(
