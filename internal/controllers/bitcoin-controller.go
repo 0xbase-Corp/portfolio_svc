@@ -28,7 +28,7 @@ import (
 // @Failure      400 {object} errors.APIError
 // @Failure      404 {object} errors.APIError
 // @Failure      500 {object} errors.APIError
-// @Router       /portfolio/btc/:btc-address [get]
+// @Router       /portfolio/btc/{btc-address} [get]
 func BitcoinController(c *gin.Context, db *gorm.DB) {
 	btcAddress := c.Param("btc-address")
 

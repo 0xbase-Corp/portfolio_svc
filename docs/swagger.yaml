@@ -250,7 +250,7 @@ paths:
       summary: Get BTC portfolio for a wallet
       tags:
       - bitcoin
-  /portfolio/btc/:btc-address:
+  /portfolio/btc/{btc-address}:
     get:
       consumes:
       - application/json

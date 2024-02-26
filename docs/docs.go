@@ -135,7 +135,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/portfolio/btc/:btc-address": {
+        "/portfolio/btc/{btc-address}": {
             "get": {
                 "description": "Retrieves information for a given Bitcoin address using the BTC.com API.",
                 "consumes": [
