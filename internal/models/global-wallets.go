@@ -16,6 +16,7 @@ type GlobalWallet struct {
 
 	// relations use in json responses (optional)
 	SolanaAssetsMoralisV1 *SolanaAssetsMoralisV1 `gorm:"foreignKey:WalletID" json:"solana_assets_moralis_v1,omitempty"`
+	BitcoinBtcComV1       *BitcoinBtcComV1       `gorm:"foreignKey:WalletID" json:"bitcoin_btc_com_v1,omitempty"`
 }
 
 func (GlobalWallet) TableName() string {

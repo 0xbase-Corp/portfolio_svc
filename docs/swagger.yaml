@@ -7,12 +7,64 @@ definitions:
       message:
         type: string
     type: object
+  models.BitcoinAddressInfo:
+    properties:
+      address_id:
+        type: integer
+      balance:
+        type: number
+      btc_asset_id:
+        type: integer
+      created_at:
+        type: string
+      first_tx:
+        type: string
+      last_tx:
+        type: string
+      received:
+        type: number
+      sent:
+        type: number
+      tx_count:
+        type: integer
+      unconfirmed_received:
+        type: number
+      unconfirmed_sent:
+        type: number
+      unconfirmed_tx_count:
+        type: integer
+      unspent_tx_count:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  models.BitcoinBtcComV1:
+    properties:
+      bitcoin_address_info:
+        items:
+          $ref: '#/definitions/models.BitcoinAddressInfo'
+        type: array
+      btc_asset_id:
+        description: Primary key
+        type: integer
+      btc_usd_price:
+        type: number
+      created_at:
+        type: string
+      updated_at:
+        type: string
+      wallet_id:
+        description: Foreign key to global_wallets
+        type: integer
+    type: object
   models.GlobalWallet:
     properties:
       api_endpoint:
         type: string
       api_version:
         type: string
+      bitcoin_btc_com_v1:
+        $ref: '#/definitions/models.BitcoinBtcComV1'
       blockchain_type:
         type: string
       last_updated_at:
@@ -153,6 +205,85 @@ paths:
       summary: ping example
       tags:
       - example
+  /portfolio/btc-wallet/{wallet_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve BTC portfolio details, including BitcoinAddressInfo, for
+        a specific wallet.
+      parameters:
+      - description: Wallet ID
+        format: int
+        in: path
+        name: wallet_id
+        required: true
+        type: integer
+      - description: Pagination offset
+        format: int
+        in: query
+        name: offset
+        type: integer
+      - description: Pagination limit
+        format: int
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalWallet'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Get BTC portfolio for a wallet
+      tags:
+      - bitcoin
+  /portfolio/btc/:btc-address:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves information for a given Bitcoin address using the BTC.com
+        API.
+      parameters:
+      - description: Bitcoin Address
+        in: path
+        name: btc-address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.OKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Fetch Bitcoin Wallet Information
+      tags:
+      - bitcoin
   /portfolio/solana-wallet/{wallet_id}:
     get:
       consumes:

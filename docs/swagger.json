@@ -64,6 +64,121 @@
                 }
             }
         },
+        "/portfolio/btc-wallet/{wallet_id}": {
+            "get": {
+                "description": "Retrieve BTC portfolio details, including BitcoinAddressInfo, for a specific wallet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bitcoin"
+                ],
+                "summary": "Get BTC portfolio for a wallet",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Wallet ID",
+                        "name": "wallet_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Pagination offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Pagination limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/portfolio/btc/:btc-address": {
+            "get": {
+                "description": "Retrieves information for a given Bitcoin address using the BTC.com API.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bitcoin"
+                ],
+                "summary": "Fetch Bitcoin Wallet Information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bitcoin Address",
+                        "name": "btc-address",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.OKResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/portfolio/solana-wallet/{wallet_id}": {
             "get": {
                 "description": "Retrieve Solana portfolio details, including tokens and NFTs, for a specific wallet.",
@@ -201,6 +316,81 @@
                 }
             }
         },
+        "models.BitcoinAddressInfo": {
+            "type": "object",
+            "properties": {
+                "address_id": {
+                    "type": "integer"
+                },
+                "balance": {
+                    "type": "number"
+                },
+                "btc_asset_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "first_tx": {
+                    "type": "string"
+                },
+                "last_tx": {
+                    "type": "string"
+                },
+                "received": {
+                    "type": "number"
+                },
+                "sent": {
+                    "type": "number"
+                },
+                "tx_count": {
+                    "type": "integer"
+                },
+                "unconfirmed_received": {
+                    "type": "number"
+                },
+                "unconfirmed_sent": {
+                    "type": "number"
+                },
+                "unconfirmed_tx_count": {
+                    "type": "integer"
+                },
+                "unspent_tx_count": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.BitcoinBtcComV1": {
+            "type": "object",
+            "properties": {
+                "bitcoin_address_info": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BitcoinAddressInfo"
+                    }
+                },
+                "btc_asset_id": {
+                    "description": "Primary key",
+                    "type": "integer"
+                },
+                "btc_usd_price": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "wallet_id": {
+                    "description": "Foreign key to global_wallets",
+                    "type": "integer"
+                }
+            }
+        },
         "models.GlobalWallet": {
             "type": "object",
             "properties": {
@@ -209,6 +399,9 @@
                 },
                 "api_version": {
                     "type": "string"
+                },
+                "bitcoin_btc_com_v1": {
+                    "$ref": "#/definitions/models.BitcoinBtcComV1"
                 },
                 "blockchain_type": {
                     "type": "string"

@@ -20,4 +20,6 @@ var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 
 	v1.GET("/portfolio/btc/:btc-address", func(c *gin.Context) { controllers.BitcoinController(c, db) })
 
+	v1.GET("/portfolio/btc-wallet/:wallet-id", func(c *gin.Context) { controllers.GetBtcDataController(c, db) })
+
 }
