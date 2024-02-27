@@ -41,9 +41,7 @@ definitions:
   models.BitcoinBtcComV1:
     properties:
       bitcoin_address_info:
-        items:
-          $ref: '#/definitions/models.BitcoinAddressInfo'
-        type: array
+        $ref: '#/definitions/models.BitcoinAddressInfo'
       btc_asset_id:
         description: Primary key
         type: integer
@@ -156,11 +154,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  types.OKResponse:
-    properties:
-      message:
-        type: string
-    type: object
 host: localhost:5050
 info:
   contact:
@@ -268,7 +261,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.OKResponse'
+            $ref: '#/definitions/models.GlobalWallet'
         "400":
           description: Bad Request
           schema:
@@ -354,7 +347,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.OKResponse'
+            $ref: '#/definitions/models.GlobalWallet'
         "400":
           description: Bad Request
           schema:

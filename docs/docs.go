@@ -161,7 +161,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/types.OKResponse"
+                            "$ref": "#/definitions/models.GlobalWallet"
                         }
                     },
                     "400": {
@@ -285,7 +285,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/types.OKResponse"
+                            "$ref": "#/definitions/models.GlobalWallet"
                         }
                     },
                     "400": {
@@ -373,10 +373,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "bitcoin_address_info": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.BitcoinAddressInfo"
-                    }
+                    "$ref": "#/definitions/models.BitcoinAddressInfo"
                 },
                 "btc_asset_id": {
                     "description": "Primary key",
@@ -545,14 +542,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "types.OKResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
                     "type": "string"
                 }
             }

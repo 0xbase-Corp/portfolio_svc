@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS bitcoin_address_info (
     last_tx TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (btc_asset_id) REFERENCES bitcoin_btc_com_v1(btc_asset_id)
+    FOREIGN KEY (btc_asset_id) REFERENCES bitcoin_btc_com_v1(btc_asset_id) ON DELETE CASCADE
 );

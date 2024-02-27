@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS nfts (
     symbol VARCHAR(50), -- New column for NFT symbol
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (solana_asset_id) REFERENCES solana_assets_moralis_v1(solana_asset_id)
+    FOREIGN KEY (solana_asset_id) REFERENCES solana_assets_moralis_v1(solana_asset_id) ON DELETE CASCADE
 );

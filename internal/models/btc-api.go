@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -11,12 +10,12 @@ import (
 type (
 	BitcoinBtcComV1 struct {
 		BtcAssetID  uint      `gorm:"primaryKey;autoIncrement" json:"btc_asset_id"` // Primary key
-		WalletID    uint      `gorm:"not null" json:"wallet_id"`                    // Foreign key to global_wallets
+		WalletID    uint      `gorm:"not null;unique" json:"wallet_id"`             // Foreign key to global_wallets
 		BtcUsdPrice float64   `gorm:"type:float" json:"btc_usd_price"`
 		UpdatedAt   time.Time `gorm:"" json:"updated_at"`
 		CreatedAt   time.Time `gorm:"" json:"created_at"`
 
-		BitcoinAddressInfo *[]BitcoinAddressInfo `gorm:"foreignKey:BtcAssetID" json:"bitcoin_address_info,omitempty"`
+		BitcoinAddressInfo *BitcoinAddressInfo `gorm:"foreignKey:BtcAssetID" json:"bitcoin_address_info,omitempty"`
 	}
 
 	// BitcoinAddressInfo represents the bitcoin_address_info table.
@@ -48,33 +47,30 @@ func (BitcoinBtcComV1) TableName() string {
 }
 
 // SaveBitcoinData saves a BitcoinBtcComV1 record and a BitcoinAddressInfo record.
-// btcComV1 is optional and can be nil.
 func SaveBitcoinData(tx *gorm.DB, btcAddressInfo *BitcoinAddressInfo, btcComV1 *BitcoinBtcComV1) error {
 	// First, handle the BitcoinBtcComV1 record
-	if btcComV1 != nil {
-		var existingBtcComV1 BitcoinBtcComV1
-		// Check if a BitcoinBtcComV1 record already exists for the wallet.
-		result := tx.Where("wallet_id = ?", btcComV1.WalletID).First(&existingBtcComV1)
+	existingBtcComV1 := BitcoinBtcComV1{}
+	result := tx.Where("wallet_id = ?", btcComV1.WalletID).First(&existingBtcComV1)
 
-		if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
-			// Return any other error encountered during the query.
-			return result.Error
-		}
+	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
+		// Return any other error encountered during the query.
+		return result.Error
+	}
 
-		log.Println("result.RowsAffected: ", result.RowsAffected)
-		if result.RowsAffected == 0 {
-			// If the record does not exist, create a new one.
-			if result := tx.Create(btcComV1); result.Error != nil {
-				return result.Error
-			}
-		} else {
-			// If the record exists, update it with the new information.
-			if err := tx.Model(&existingBtcComV1).Updates(btcComV1).Error; err != nil {
-				return err
-			}
-			// Use the ID of the existing record for the BitcoinAddressInfo.
-			btcComV1.BtcAssetID = existingBtcComV1.BtcAssetID
+	// If the record does not exist, create a new one.
+	if result.RowsAffected == 0 {
+		if err := tx.Create(btcComV1).Error; err != nil {
+			tx.Rollback()
+			return err
 		}
+	} else {
+		// If the record exists, update it with the new information.
+		if err := tx.Model(&existingBtcComV1).Updates(btcComV1).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		// Use the ID of the existing record for the BitcoinAddressInfo.
+		btcComV1.BtcAssetID = existingBtcComV1.BtcAssetID
 	}
 
 	// Then, handle the BitcoinAddressInfo record
@@ -84,8 +80,27 @@ func SaveBitcoinData(tx *gorm.DB, btcAddressInfo *BitcoinAddressInfo, btcComV1 *
 			btcAddressInfo.BtcAssetID = btcComV1.BtcAssetID
 		}
 
-		if result := tx.Create(btcAddressInfo); result.Error != nil {
+		// Check if a BitcoinAddressInfo record already exists for the wallet.
+		existingBTCAddressInfo := BitcoinAddressInfo{}
+		result := tx.Where("btc_asset_id = ?", btcAddressInfo.BtcAssetID).First(&existingBTCAddressInfo)
+
+		if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
+			// Return any other error encountered during the query.
 			return result.Error
+		}
+
+		// If the record does not exist, create a new one.
+		if result.RowsAffected == 0 {
+			if err := tx.Create(btcAddressInfo).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		} else {
+			// If the record exists, update it with the new information.
+			if err := tx.Model(&existingBTCAddressInfo).Updates(btcAddressInfo).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
 		}
 	}
 

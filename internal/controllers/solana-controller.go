@@ -25,17 +25,14 @@ import (
 // @Produce      json
 // @Param        sol-address path string true "Solana Address" Format(string)
 // @Param        x-api-key header string true "Moralis API Key" Format(string)
-// @Success      200 {object} types.OKResponse
+// @Success      200 {object} models.GlobalWallet
 // @Failure      400 {object} errors.APIError
 // @Failure      404 {object} errors.APIError
 // @Failure      500 {object} errors.APIError
 // @Router       /portfolio/solana/{sol-address} [get]
 func SolanaController(c *gin.Context, db *gorm.DB) {
-
-	log.Println("SolanaController invoked")
 	// Extract the Solana address from the request parameter.
 	solAddress := c.Param("sol-address")
-	log.Println("for address:", solAddress)
 
 	// Extract the Moralis API key from the request header.
 	moralisAccessKey := c.GetHeader("x-api-key")
@@ -68,14 +65,7 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 	}
 
 	// Define a struct to match the JSON response structure from the Moralis API.
-	var response struct {
-		Tokens        []models.Token `json:"tokens"`
-		NFTs          []models.NFT   `json:"nfts"`
-		NativeBalance struct {
-			Lamports string `json:"lamports"`
-			Solana   string `json:"solana"`
-		} `json:"nativeBalance"`
-	}
+	response := types.SolanaApiResponse{}
 
 	// Parse the JSON response into the defined struct.
 	if err := json.Unmarshal(body, &response); err != nil {
@@ -83,10 +73,9 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to parse JSON response: "+err.Error()))
 		return
 	}
-	log.Println("Received response from Moralis API")
 
 	// Check if a wallet with the given Solana address exists in the database.
-	var wallet models.GlobalWallet
+	wallet := models.GlobalWallet{}
 	err = db.Where("wallet_address = ?", solAddress).First(&wallet).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -121,22 +110,24 @@ func SolanaController(c *gin.Context, db *gorm.DB) {
 	// Attempt to save the Solana asset data along with the associated tokens and NFTs.
 	if err := models.SaveSolanaData(tx, &solanaAsset, response.Tokens, response.NFTs); err != nil {
 		tx.Rollback()
-		log.Println("Failed to save data to the database:", err)
 		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to save data to the database: "+err.Error()))
 		return
 	}
 
 	// Commit the transaction if everything is successful.
 	if err := tx.Commit().Error; err != nil {
-		log.Println("Error committing transaction:", err)
 		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to commit transaction: "+err.Error()))
 		return
 	}
 
+	walletResponse, err := models.GetGlobalWalletWithSolanaInfo(db, solAddress)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get wallet data: "+err.Error()))
+		return
+	}
+
 	// Send a success response.
-	c.JSON(http.StatusOK, types.OKResponse{
-		Message: "Data saved successfully",
-	})
+	c.JSON(http.StatusOK, walletResponse)
 }
 
 //	@BasePath	/api/v1

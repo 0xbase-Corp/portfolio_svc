@@ -67,7 +67,7 @@ func (NFT) TableName() string {
 
 func SaveSolanaData(tx *gorm.DB, solanaAsset *SolanaAssetsMoralisV1, tokens []Token, nfts []NFT) error {
 	// Check if a SolanaAssetsMoralisV1 record already exists for the wallet.
-	var existingAsset SolanaAssetsMoralisV1
+	existingAsset := SolanaAssetsMoralisV1{}
 	result := tx.Where("wallet_id = ?", solanaAsset.WalletID).First(&existingAsset)
 
 	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
