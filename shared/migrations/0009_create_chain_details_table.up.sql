@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS chain_details (
     native_token_id VARCHAR(255),
     wrapped_token_id VARCHAR(255),
     usd_value DECIMAL,
-    wallet_id INTEGER NOT NULL,
+    wallet_id INTEGER NOT NULL UNIQUE,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (wallet_id) REFERENCES global_wallets(wallet_id)
+    FOREIGN KEY (wallet_id) REFERENCES global_wallets(wallet_id) ON DELETE CASCADE
 );

@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS nft_list (
     value TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (evm_asset_id) REFERENCES evm_assets_debank_v1(evm_asset_id)
+    FOREIGN KEY (evm_asset_id) REFERENCES evm_assets_debank_v1(evm_asset_id) ON DELETE CASCADE
 );
