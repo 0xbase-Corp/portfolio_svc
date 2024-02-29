@@ -13,7 +13,7 @@ import (
 
 // Migrate applies the migration files to the database in the correct order.
 func Migrate(db *gorm.DB) error {
-	migrationsDir := "./pkg/migrations"
+	migrationsDir := "./"
 
 	// Store all migration files in a slice
 	var migrationFiles []string

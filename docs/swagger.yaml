@@ -1,0 +1,366 @@
+basePath: /api/v1
+definitions:
+  errors.APIError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  models.BitcoinAddressInfo:
+    properties:
+      address_id:
+        type: integer
+      balance:
+        type: number
+      btc_asset_id:
+        type: integer
+      created_at:
+        type: string
+      first_tx:
+        type: string
+      last_tx:
+        type: string
+      received:
+        type: number
+      sent:
+        type: number
+      tx_count:
+        type: integer
+      unconfirmed_received:
+        type: number
+      unconfirmed_sent:
+        type: number
+      unconfirmed_tx_count:
+        type: integer
+      unspent_tx_count:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  models.BitcoinBtcComV1:
+    properties:
+      bitcoin_address_info:
+        $ref: '#/definitions/models.BitcoinAddressInfo'
+      btc_asset_id:
+        description: Primary key
+        type: integer
+      btc_usd_price:
+        type: number
+      created_at:
+        type: string
+      updated_at:
+        type: string
+      wallet_id:
+        description: Foreign key to global_wallets
+        type: integer
+    type: object
+  models.GlobalWallet:
+    properties:
+      api_endpoint:
+        type: string
+      api_version:
+        type: string
+      bitcoin_btc_com_v1:
+        $ref: '#/definitions/models.BitcoinBtcComV1'
+      blockchain_type:
+        type: string
+      last_updated_at:
+        type: string
+      portfolio_id:
+        type: integer
+      solana_assets_moralis_v1:
+        allOf:
+        - $ref: '#/definitions/models.SolanaAssetsMoralisV1'
+        description: relations use in json responses (optional)
+      wallet_address:
+        type: string
+      wallet_id:
+        type: integer
+    type: object
+  models.NFT:
+    properties:
+      amount_raw:
+        type: string
+      associated_token_address:
+        type: string
+      created_at:
+        type: string
+      decimals:
+        type: string
+      mint:
+        type: string
+      name:
+        type: string
+      nft_id:
+        type: integer
+      solana_asset_id:
+        type: integer
+      symbol:
+        type: string
+      updated_at:
+        type: string
+      userscore:
+        type: integer
+    type: object
+  models.SolanaAssetsMoralisV1:
+    properties:
+      lamports:
+        type: string
+      last_updated_at:
+        type: string
+      nfts:
+        items:
+          $ref: '#/definitions/models.NFT'
+        type: array
+      solana:
+        type: string
+      solana_asset_id:
+        type: integer
+      tokens:
+        description: relations use in json responses (optional)
+        items:
+          $ref: '#/definitions/models.Token'
+        type: array
+      total_nfts_count:
+        type: integer
+      total_tokens_count:
+        type: integer
+      wallet_id:
+        type: integer
+    type: object
+  models.Token:
+    properties:
+      amount:
+        type: string
+      amount_raw:
+        type: string
+      associated_token_address:
+        type: string
+      created_at:
+        type: string
+      decimals:
+        type: string
+      mint:
+        type: string
+      name:
+        type: string
+      solana_asset_id:
+        type: integer
+      symbol:
+        type: string
+      token_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+host: localhost:5050
+info:
+  contact:
+    email: help@0xbase.org
+    name: 0xSantos
+    url: http://www.0xbase.org
+  description: This is Portfolio server API documentation.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: 0xBase-Corp API
+  version: "1.0"
+paths:
+  /db/test/healthy:
+    get:
+      consumes:
+      - application/json
+      description: do ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ping example
+      tags:
+      - example
+  /example/helloworld:
+    get:
+      consumes:
+      - application/json
+      description: do ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ping example
+      tags:
+      - example
+  /portfolio/btc-wallet/{wallet_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve BTC portfolio details, including BitcoinAddressInfo, for
+        a specific wallet.
+      parameters:
+      - description: Wallet ID
+        format: int
+        in: path
+        name: wallet_id
+        required: true
+        type: integer
+      - description: Pagination offset
+        format: int
+        in: query
+        name: offset
+        type: integer
+      - description: Pagination limit
+        format: int
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalWallet'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Get BTC portfolio for a wallet
+      tags:
+      - bitcoin
+  /portfolio/btc/{btc-address}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves information for a given Bitcoin address using the BTC.com
+        API.
+      parameters:
+      - description: Bitcoin Address
+        in: path
+        name: btc-address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalWallet'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Fetch Bitcoin Wallet Information
+      tags:
+      - bitcoin
+  /portfolio/solana-wallet/{wallet_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve Solana portfolio details, including tokens and NFTs, for
+        a specific wallet.
+      parameters:
+      - description: Wallet ID
+        format: int
+        in: path
+        name: wallet_id
+        required: true
+        type: integer
+      - description: Pagination offset
+        format: int
+        in: query
+        name: offset
+        type: integer
+      - description: Pagination limit
+        format: int
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalWallet'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Get Solana portfolio for a wallet
+      tags:
+      - solana
+  /portfolio/solana/{sol-address}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch Solana portfolio details, including tokens and NFTs, for
+        a specific Solana address.
+      parameters:
+      - description: Solana Address
+        format: string
+        in: path
+        name: sol-address
+        required: true
+        type: string
+      - description: Moralis API Key
+        format: string
+        in: header
+        name: x-api-key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalWallet'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Fetch Solana portfolio details for a given Solana address
+      tags:
+      - solana
+swagger: "2.0"

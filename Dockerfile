@@ -1,46 +1,33 @@
 # Start from the latest golang base image
-FROM golang:alpine3.19 AS binary
+FROM golang:alpine3.19 AS builder
 
 # Install git
 RUN apk add --no-cache git
 
-# Disable Go's module proxy and checksum database
-ENV GOPROXY=direct
-ENV GONOSUMDB=*
-
-# Set the Current Working Directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy go mod and sum files
-COPY go.mod go.sum ./
-
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN go mod download && go mod tidy
-
-# Copy the source from the current directory to the Working Directory inside the container
+# Copy necessary files
+COPY go.* ./
 COPY . .
 
-# Copy the migrations directory
-COPY pkg/migrations /app/migrations
+# Copy migrations directory
+COPY shared/migrations /app/migrations
 
+# Build the Go app with verbose output
+RUN go build -o /app/main-out ./cmd/0xbase/
 
-WORKDIR /app/cmd/0xbase/
+# Start a new stage from a minimal base image
+FROM gcr.io/distroless/base-debian12 AS final
 
-# Debug: Build the Go app with verbose output
-RUN go build -v -o ../../main-out .
-
-# Start a new stage from scratch
-FROM gcr.io/distroless/base-debian12 AS build-release-stage
-
-# Copy the binary from the previous stage
-COPY --from=binary /app/main-out /app/
+# Copy the binary and migrations from the builder stage
+COPY --from=builder /app/main-out /app/
+COPY --from=builder /app/migrations /app/migrations
 
 # Copy the environment file
-COPY --from=binary /app/app.env /
+COPY --from=builder /app/app.env /
 
-# Copy the migrations directory to the final stage
-COPY --from=binary /app/migrations /app/migrations
-
+# Expose port
 EXPOSE 5050
 
 # Command to run the executable
