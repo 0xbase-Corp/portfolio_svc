@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS tokens_list (
-    token_id VARCHAR(255) PRIMARY KEY,
+    token_id SERIAL PRIMARY KEY,
+    id VARCHAR(255),
     evm_asset_id INTEGER NOT NULL,
     contract_id VARCHAR(255),
     inner_id VARCHAR(255),

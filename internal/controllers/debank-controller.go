@@ -1,69 +1,143 @@
 package controllers
 
 import (
-	"encoding/json"
-	"io"
-	"log"
 	"net/http"
 
 	"github.com/0xbase-Corp/portfolio_svc/internal/models"
 	"github.com/0xbase-Corp/portfolio_svc/internal/types"
+	"github.com/0xbase-Corp/portfolio_svc/internal/utils"
+	"github.com/0xbase-Corp/portfolio_svc/shared/errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 func DebankController(c *gin.Context, db *gorm.DB) {
 	debankAddress := c.Param("debank-address")
+	debankAccessKey := c.GetHeader("AccessKey")
 
-	url := "https://pro-openapi.debank.com/v1/user/total_balance?id=" + debankAddress
-	log.Println("url:", url)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	// Create an HTTP client and execute the request.
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer resp.Body.Close()
-
-	// Read the response body.
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if debankAccessKey == "" {
+		errors.HandleHttpError(c, errors.NewBadRequestError("Debank access key is missing"))
 		return
 	}
 
-	apiResponse := types.EvmDebankApiResponse{}
-
-	// Parse the JSON response into the defined struct.
-	if err := json.Unmarshal(body, &apiResponse); err != nil {
-		log.Println("Error parsing JSON response:", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse JSON response: " + err.Error()})
+	totalBalanceApiResponse, err := getDebankTotalBalance(debankAddress, debankAccessKey)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get Debank total balance: "+err.Error()))
 		return
 	}
-	log.Println("Received response from Debank API")
 
-	var wallet models.GlobalWallet
-	err = db.Where("wallet_address = ?", debankAddress).First(&wallet).Error
+	tokenListApiResponse, err := getDebankTokenList(debankAddress, debankAccessKey)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			wallet = models.GlobalWallet{
-				WalletAddress:  debankAddress,
-				BlockchainType: "Debank",
-			}
-			if err := db.Create(&wallet).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create wallet: " + err.Error()})
-				return
-			}
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database query error: " + err.Error()})
-			return
-		}
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get Debank token list: "+err.Error()))
+		return
 	}
-	log.Println("here is the wallet", wallet)
+
+	NFTListApiResponse, err := getDebankNFTList(debankAddress, debankAccessKey)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get Debank token list: "+err.Error()))
+		return
+	}
+
+	tx := db.Begin()
+
+	// Retrieve or save wallet
+	wallet, err := models.GetOrCreateWallet(tx, debankAddress, "Debank")
+	if err != nil {
+		tx.Rollback()
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to retrieve or create wallet: "+err.Error()))
+		return
+	}
+
+	// Save EvmAssetsDebankV1
+	evmAssetsDebankV1 := models.EvmAssetsDebankV1{
+		WalletID:      wallet.WalletID,
+		TotalUsdValue: totalBalanceApiResponse.TotalUsdValue,
+	}
+
+	err = models.CreateOrUpdateEvmAssetsDebankV1(tx, &evmAssetsDebankV1)
+	if err != nil {
+		tx.Rollback()
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to create/update EvmAssetsDebankV1: "+err.Error()))
+		return
+	}
+
+	// Save Chain
+	err = models.SaveChainDetails(tx, wallet.WalletID, totalBalanceApiResponse.ChainList)
+	if err != nil {
+		tx.Rollback()
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to create/update Chain details: "+err.Error()))
+		return
+	}
+
+	// create or update token list
+
+	if err := tx.Commit().Error; err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to commit transaction: "+err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"tokens": tokenListApiResponse,
+		"nfts":   NFTListApiResponse,
+	})
+}
+
+func getDebankTotalBalance(debankAddress, debankAccessKey string) (types.EvmDebankTotalBalanceApiResponse, error) {
+	chainUrl := "https://pro-openapi.debank.com/v1/user/total_balance?id=" + debankAddress
+	headers := map[string]string{
+		"Accept":    "application/json",
+		"AccessKey": debankAccessKey,
+	}
+
+	body, err := utils.CallAPI(chainUrl, headers)
+	if err != nil {
+		return types.EvmDebankTotalBalanceApiResponse{}, err
+	}
+
+	totalBalanceApiResponse := types.EvmDebankTotalBalanceApiResponse{}
+	if err := utils.DecodeJSONResponse(body, &totalBalanceApiResponse); err != nil {
+		return types.EvmDebankTotalBalanceApiResponse{}, err
+	}
+
+	return totalBalanceApiResponse, nil
+}
+
+func getDebankTokenList(debankAddress, debankAccessKey string) ([]*models.TokenList, error) {
+	chainUrl := "https://pro-openapi.debank.com/v1/user/all_token_list?id=" + debankAddress
+	headers := map[string]string{
+		"Accept":    "application/json",
+		"AccessKey": debankAccessKey,
+	}
+
+	body, err := utils.CallAPI(chainUrl, headers)
+	if err != nil {
+		return nil, err
+	}
+
+	tokens := make([]*models.TokenList, 0)
+	if err := utils.DecodeJSONResponse(body, &tokens); err != nil {
+		return nil, err
+	}
+
+	return tokens, nil
+}
+
+func getDebankNFTList(debankAddress, debankAccessKey string) ([]*models.NFTList, error) {
+	chainUrl := "https://pro-openapi.debank.com/v1/user/all_nft_list?id=" + debankAddress
+	headers := map[string]string{
+		"Accept":    "application/json",
+		"AccessKey": debankAccessKey,
+	}
+
+	body, err := utils.CallAPI(chainUrl, headers)
+	if err != nil {
+		return nil, err
+	}
+
+	ntfs := make([]*models.NFTList, 0)
+	if err := utils.DecodeJSONResponse(body, &ntfs); err != nil {
+		return nil, err
+	}
+
+	return ntfs, nil
 }
