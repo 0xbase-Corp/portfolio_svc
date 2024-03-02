@@ -185,6 +185,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/portfolio/debank/{debank-address}": {
+            "get": {
+                "description": "Retrieves information for a given Debank address using the BTC.com API.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Debank"
+                ],
+                "summary": "Fetch Debank Wallet Information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Debank Address",
+                        "name": "debank-address",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Debank access key",
+                        "name": "AccessKey",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/portfolio/solana-wallet/{wallet_id}": {
             "get": {
                 "description": "Retrieve Solana portfolio details, including tokens and NFTs, for a specific wallet.",
@@ -394,6 +453,81 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ChainDetails": {
+            "type": "object",
+            "properties": {
+                "chian_id": {
+                    "type": "integer"
+                },
+                "community_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "native_token_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "usd_value": {
+                    "type": "number"
+                },
+                "wallet_id": {
+                    "type": "integer"
+                },
+                "wrapped_token_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.EvmAssetsDebankV1": {
+            "type": "object",
+            "properties": {
+                "chain_list_json": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "evm_asset_id": {
+                    "description": "Primary key",
+                    "type": "integer"
+                },
+                "nft_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.NFTList"
+                    }
+                },
+                "token_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TokenList"
+                    }
+                },
+                "total_usd_value": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "wallet_id": {
+                    "description": "Foreign key to global_wallets",
+                    "type": "integer"
+                }
+            }
+        },
         "models.GlobalWallet": {
             "type": "object",
             "properties": {
@@ -408,6 +542,15 @@ const docTemplate = `{
                 },
                 "blockchain_type": {
                     "type": "string"
+                },
+                "chain_details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChainDetails"
+                    }
+                },
+                "evm_assets_debank_v1": {
+                    "$ref": "#/definitions/models.EvmAssetsDebankV1"
                 },
                 "last_updated_at": {
                     "type": "string"
@@ -466,6 +609,79 @@ const docTemplate = `{
                 },
                 "userscore": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.NFTList": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "attributes": {
+                    "type": "array"
+                },
+                "chain": {
+                    "type": "string"
+                },
+                "collection_id": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "contract_id": {
+                    "type": "string"
+                },
+                "contract_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "detail_url": {
+                    "type": "string"
+                },
+                "evm_asset_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "nft id",
+                    "type": "string"
+                },
+                "inner_id": {
+                    "type": "string"
+                },
+                "is_erc1155": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nft_id": {
+                    "description": "database id",
+                    "type": "integer"
+                },
+                "pay_token": {
+                    "type": "object"
+                },
+                "thumbnail_url": {
+                    "type": "string"
+                },
+                "total_supply": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "usd_price": {
+                    "type": "number"
                 }
             }
         },
@@ -539,6 +755,79 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "token_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TokenList": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "chain": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "decimals": {
+                    "type": "integer"
+                },
+                "display_symbol": {
+                    "type": "string"
+                },
+                "evm_asset_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "token id",
+                    "type": "string"
+                },
+                "is_core": {
+                    "type": "boolean"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "is_wallet": {
+                    "type": "boolean"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "optimized_symbol": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "price_24h_change": {
+                    "type": "number"
+                },
+                "protocol_id": {
+                    "type": "string"
+                },
+                "raw_amount": {
+                    "type": "number"
+                },
+                "raw_amount_hex_str": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "time_at": {
+                    "type": "number"
+                },
+                "token_id": {
+                    "description": "database id",
                     "type": "integer"
                 },
                 "updated_at": {

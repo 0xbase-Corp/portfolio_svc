@@ -11,6 +11,22 @@ import (
 	"gorm.io/gorm"
 )
 
+//	@BasePath	/api/v1
+
+// DebankController godoc
+//
+// @Summary      Fetch Debank Wallet Information
+// @Description  Retrieves information for a given Debank address using the BTC.com API.
+// @Tags         Debank
+// @Accept       json
+// @Produce      json
+// @Param        debank-address path string true "Debank Address" Format(string)
+// @Param        AccessKey header string true "Debank access key" Format(string)
+// @Success      200 {object} models.GlobalWallet
+// @Failure      400 {object} errors.APIError
+// @Failure      404 {object} errors.APIError
+// @Failure      500 {object} errors.APIError
+// @Router       /portfolio/debank/{debank-address} [get]
 func DebankController(c *gin.Context, db *gorm.DB) {
 	debankAddress := c.Param("debank-address")
 	debankAccessKey := c.GetHeader("AccessKey")
@@ -34,7 +50,7 @@ func DebankController(c *gin.Context, db *gorm.DB) {
 
 	NFTListApiResponse, err := getDebankNFTList(debankAddress, debankAccessKey)
 	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get Debank token list: "+err.Error()))
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get Debank nft list: "+err.Error()))
 		return
 	}
 
@@ -48,12 +64,12 @@ func DebankController(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// Save EvmAssetsDebankV1
 	evmAssetsDebankV1 := models.EvmAssetsDebankV1{
 		WalletID:      wallet.WalletID,
 		TotalUsdValue: totalBalanceApiResponse.TotalUsdValue,
 	}
 
+	// Save EvmAssetsDebankV1
 	err = models.CreateOrUpdateEvmAssetsDebankV1(tx, &evmAssetsDebankV1)
 	if err != nil {
 		tx.Rollback()
@@ -69,19 +85,36 @@ func DebankController(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// create or update token list
+	// Save token list
+	err = models.SaveTokenListByEvmAssetsDebankV1ID(tx, evmAssetsDebankV1.EvmAssetID, tokenListApiResponse)
+	if err != nil {
+		tx.Rollback()
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to create/update token list: "+err.Error()))
+		return
+	}
+
+	// Save nft list
+	err = models.SaveNFTSListByEvmAssetsDebankV1ID(tx, evmAssetsDebankV1.EvmAssetID, NFTListApiResponse)
+	if err != nil {
+		tx.Rollback()
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to create/update nft list: "+err.Error()))
+		return
+	}
 
 	if err := tx.Commit().Error; err != nil {
 		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to commit transaction: "+err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"tokens": tokenListApiResponse,
-		"nfts":   NFTListApiResponse,
-	})
+	walletResponse, err := models.GetGlobalWalletWithEvmDebankInfo(db, debankAddress)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get wallet data: "+err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, walletResponse)
 }
 
+// Get total balance data
 func getDebankTotalBalance(debankAddress, debankAccessKey string) (types.EvmDebankTotalBalanceApiResponse, error) {
 	chainUrl := "https://pro-openapi.debank.com/v1/user/total_balance?id=" + debankAddress
 	headers := map[string]string{
@@ -102,6 +135,7 @@ func getDebankTotalBalance(debankAddress, debankAccessKey string) (types.EvmDeba
 	return totalBalanceApiResponse, nil
 }
 
+// Get token list data
 func getDebankTokenList(debankAddress, debankAccessKey string) ([]*models.TokenList, error) {
 	chainUrl := "https://pro-openapi.debank.com/v1/user/all_token_list?id=" + debankAddress
 	headers := map[string]string{
@@ -122,6 +156,7 @@ func getDebankTokenList(debankAddress, debankAccessKey string) ([]*models.TokenL
 	return tokens, nil
 }
 
+// Get nft list data
 func getDebankNFTList(debankAddress, debankAccessKey string) ([]*models.NFTList, error) {
 	chainUrl := "https://pro-openapi.debank.com/v1/user/all_nft_list?id=" + debankAddress
 	headers := map[string]string{
