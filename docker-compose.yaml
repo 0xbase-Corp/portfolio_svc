@@ -1,4 +1,4 @@
-version: '3.1'
+version: "3.1"
 services:
   postgres:
     image: postgres:latest
@@ -13,8 +13,8 @@ services:
     ports:
       - 5555:5432
     networks:
-      - xbase 
-  
+      - xbase
+
   portfolio_svc:
     build: ./
     restart: always
@@ -27,7 +27,14 @@ services:
     env_file:
       - app.env
 
-  
+  portofolio_ui:
+    build:
+      context: ./portfolio_ui
+      dockerfile: Dockerfile
+    image: my-next-app
+    ports:
+      - "3000:3000"
+
 networks:
   xbase:
     driver: bridge
@@ -36,4 +43,3 @@ volumes:
   db_data:
     driver: local
     name: portfolio_db_data
-
