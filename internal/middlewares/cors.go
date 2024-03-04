@@ -9,6 +9,6 @@ func CORSMiddleware() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"GET", "POST"},
-		AllowHeaders:    []string{"Origin", "Content-Type"},
+		AllowHeaders:    []string{"Origin", "Content-Type", "x-api-key", "AccessKey"}, // x-api-key for solana and AccessKey for debank
 	})
 }
