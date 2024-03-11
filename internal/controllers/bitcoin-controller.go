@@ -1,13 +1,15 @@
 package controllers
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"strconv"
+	"strings"
+	"sync"
 
 	"github.com/0xbase-Corp/portfolio_svc/internal/models"
-	"github.com/0xbase-Corp/portfolio_svc/internal/types"
+	"github.com/0xbase-Corp/portfolio_svc/internal/providers"
+	"github.com/0xbase-Corp/portfolio_svc/internal/providers/bitcoin"
+	"github.com/0xbase-Corp/portfolio_svc/internal/utils"
 	"github.com/0xbase-Corp/portfolio_svc/shared/errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -22,102 +24,48 @@ import (
 // @Tags         bitcoin
 // @Accept       json
 // @Produce      json
-// @Param        btc-address  path      string  true  "Bitcoin Address"
+// @Param        addresses  query      array  true  "Bitcoin Addresses"
 // @Success      200 {object} models.GlobalWallet
 // @Failure      400 {object} errors.APIError
 // @Failure      404 {object} errors.APIError
 // @Failure      500 {object} errors.APIError
-// @Router       /portfolio/btc/{btc-address} [get]
-func BitcoinController(c *gin.Context, db *gorm.DB) {
-	btcAddress := c.Param("btc-address")
+// @Router       /portfolio/btc [get]
+func BitcoinController(c *gin.Context, db *gorm.DB, apiClient providers.APIClient) {
+	addresses := c.Query("addresses")
+	btcAddresses := strings.Split(addresses, ",")
 
-	if btcAddress == "" {
-		errors.HandleHttpError(c, errors.NewBadRequestError("empty btc address"))
+	if len(btcAddresses) == 0 {
+		errors.HandleHttpError(c, errors.NewBadRequestError("empty btc addresses"))
 		return
 	}
 
-	// Prepare the BTC API request URL.
-	url := "https://chain.api.btc.com/v3/address/" + btcAddress
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError(err.Error()))
-		return
+	wg := sync.WaitGroup{}
+	mutex := sync.Mutex{}
+	ch := make(chan *models.GlobalWallet, 1) // 1 specifies the buffer size of the channel
+
+	for _, btcAddress := range btcAddresses {
+		wg.Add(1)
+
+		go process(c, db, apiClient, btcAddress, ch, &wg, &mutex)
 	}
 
-	// Create an HTTP client and execute the request.
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError(err.Error()))
-		return
-	}
-	defer resp.Body.Close()
+	// Use a goroutine to close the channel after all goroutines have finished
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
 
-	// Read the response body.
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError(err.Error()))
-		return
-	}
-
-	// Define a struct to match the JSON response structure from the BTC API.
-	apiResponse := types.BtcApiResponse{}
-
-	// Parse the JSON response into the defined struct.
-	if err := json.Unmarshal(body, &apiResponse); err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to parse JSON response: "+err.Error()))
-		return
-	}
-
-	// Check if a wallet with the given Bitcoin address exists in the global_wallets table
-	wallet := models.GlobalWallet{}
-	err = db.Where("wallet_address = ?", btcAddress).First(&wallet).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			wallet = models.GlobalWallet{
-				WalletAddress:  btcAddress,
-				BlockchainType: "Bitcoin",
-			}
-			if err := db.Create(&wallet).Error; err != nil {
-				errors.HandleHttpError(c, errors.NewBadRequestError("Failed to create wallet: "+err.Error()))
-				return
-			}
-		} else {
-			errors.HandleHttpError(c, errors.NewBadRequestError("Database query error: "+err.Error()))
-			return
+	// Collect all results from the channel
+	allResponses := make([]*models.GlobalWallet, 0)
+	for walletResponse := range ch {
+		if walletResponse == nil {
+			// Handle the case where processing failed for an address
+			continue
 		}
+		allResponses = append(allResponses, walletResponse)
 	}
 
-	// Begin a new transaction
-	tx := db.Begin()
-	// Assuming wallet is the GlobalWallet record found or created
-	walletID := wallet.WalletID
-
-	// Initialize btcComV1 and set the WalletID
-	btcComV1 := models.BitcoinBtcComV1{}
-	btcComV1.WalletID = uint(walletID)
-
-	// Proceed to call SaveBitcoinData with the updated BitcoinAddressInfo and btcComV1
-	if err := models.SaveBitcoinData(tx, &apiResponse.Data.Data, &btcComV1); err != nil {
-		tx.Rollback()
-		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to save Bitcoin address info: "+err.Error()))
-		return
-	}
-
-	// Commit the transaction
-	if err := tx.Commit().Error; err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to commit transaction: "+err.Error()))
-		return
-	}
-
-	// get the data
-	walletResponse, err := models.GetGlobalWalletWithBitcoinInfo(db, btcAddress)
-	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError("Failed to get wallet data: "+err.Error()))
-		return
-	}
-
-	c.JSON(http.StatusOK, walletResponse)
+	c.JSON(http.StatusOK, allResponses)
 }
 
 //	@BasePath	/api/v1
@@ -175,4 +123,76 @@ func GetBtcDataController(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.JSON(http.StatusOK, wallet)
+}
+
+// helper to save data
+func save(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse) (*models.GlobalWallet, error) {
+	// Begin a new transaction
+	tx := db.Begin()
+
+	wallet, err := models.GetOrCreateWallet(tx, btcAddress, "Bitcoin")
+	if err != nil {
+		tx.Rollback()
+		return &models.GlobalWallet{}, err
+	}
+
+	// Assuming wallet is the GlobalWallet record found or created
+	walletID := wallet.WalletID
+
+	// Initialize btcComV1 and set the WalletID
+	btcComV1 := models.BitcoinBtcComV1{}
+	btcComV1.WalletID = uint(walletID)
+
+	// Proceed to call SaveBitcoinData with the updated BitcoinAddressInfo and btcComV1
+	if err := models.SaveBitcoinData(tx, &apiResponse.Data.Data, &btcComV1); err != nil {
+		tx.Rollback()
+		return &models.GlobalWallet{}, err
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		return &models.GlobalWallet{}, err
+	}
+
+	// get the data
+	walletResponse, err := models.GetGlobalWalletWithBitcoinInfo(db, btcAddress)
+	if err != nil {
+		return &models.GlobalWallet{}, err
+	}
+
+	return walletResponse, nil
+}
+
+// Fetch and save the data for one address
+func process(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, wg *sync.WaitGroup, mutex *sync.Mutex) {
+	defer wg.Done()
+
+	body, err := apiClient.FetchData(address)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("error from api: "+err.Error()))
+		return
+	}
+
+	// resp := bitcoin.BtcApiResponse{}
+	// if err := utils.DecodeJSONResponse(body, &resp); err != nil {
+	// 	errors.HandleHttpError(c, errors.NewBadRequestError("Failed to parse JSON response: "+err.Error()))
+	// 	return
+	// }
+
+	// ignore the Address which returns error or empty response
+	resp := bitcoin.BtcApiResponse{}
+	if err := utils.DecodeJSONResponse(body, &resp); err != nil {
+		return
+	}
+
+	walletResponse, err := save(db, address, resp)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("error from api"+err.Error()))
+		return
+	}
+
+	// Use a mutex to safely append to the channel.
+	mutex.Lock()
+	ch <- walletResponse
+	mutex.Unlock()
 }

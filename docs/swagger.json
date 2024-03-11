@@ -1,791 +1,828 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "description": "This is Portfolio server API documentation.",
-    "title": "0xBase-Corp API",
-    "termsOfService": "http://swagger.io/terms/",
-    "contact": {
-      "name": "0xSantos",
-      "url": "http://www.0xbase.org",
-      "email": "help@0xbase.org"
+    "swagger": "2.0",
+    "info": {
+        "description": "This is Portfolio server API documentation.",
+        "title": "0xBase-Corp API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "0xSantos",
+            "url": "http://www.0xbase.org",
+            "email": "help@0xbase.org"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
     },
-    "license": {
-      "name": "Apache 2.0",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-    },
-    "version": "1.0"
-  },
-  "host": "localhost:5050",
-  "basePath": "/api/v1",
-  "paths": {
-    "/db/test/healthy": {
-      "get": {
-        "description": "do ping",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["example"],
-        "summary": "ping example",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "string"
+    "host": "localhost:5050",
+    "basePath": "/api/v1",
+    "paths": {
+        "/db/test/healthy": {
+            "get": {
+                "description": "do ping",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "ping example",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
-          }
+        },
+        "/example/helloworld": {
+            "get": {
+                "description": "do ping",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "ping example",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/portfolio/btc": {
+            "get": {
+                "description": "Retrieves information for a given Bitcoin address using the BTC.com API.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bitcoin"
+                ],
+                "summary": "Fetch Bitcoin Wallet Information",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "description": "Bitcoin Addresses",
+                        "name": "addresses",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/portfolio/btc-wallet/{wallet_id}": {
+            "get": {
+                "description": "Retrieve BTC portfolio details, including BitcoinAddressInfo, for a specific wallet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bitcoin"
+                ],
+                "summary": "Get BTC portfolio for a wallet",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Wallet ID",
+                        "name": "wallet_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Pagination offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Pagination limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/portfolio/debank/{debank-address}": {
+            "get": {
+                "description": "Retrieves information for a given Debank address using the BTC.com API.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Debank"
+                ],
+                "summary": "Fetch Debank Wallet Information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Debank Address",
+                        "name": "debank-address",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Debank access key",
+                        "name": "AccessKey",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/portfolio/solana-wallet/{wallet_id}": {
+            "get": {
+                "description": "Retrieve Solana portfolio details, including tokens and NFTs, for a specific wallet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solana"
+                ],
+                "summary": "Get Solana portfolio for a wallet",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Wallet ID",
+                        "name": "wallet_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Pagination offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Pagination limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/portfolio/solana/{sol-address}": {
+            "get": {
+                "description": "Fetch Solana portfolio details, including tokens and NFTs, for a specific Solana address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solana"
+                ],
+                "summary": "Fetch Solana portfolio details for a given Solana address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Solana Address",
+                        "name": "sol-address",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Moralis API Key",
+                        "name": "x-api-key",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
         }
-      }
     },
-    "/example/helloworld": {
-      "get": {
-        "description": "do ping",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["example"],
-        "summary": "ping example",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "string"
+    "definitions": {
+        "errors.APIError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
             }
-          }
+        },
+        "models.BitcoinAddressInfo": {
+            "type": "object",
+            "properties": {
+                "address_id": {
+                    "type": "integer"
+                },
+                "balance": {
+                    "type": "number"
+                },
+                "btc_asset_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "first_tx": {
+                    "type": "string"
+                },
+                "last_tx": {
+                    "type": "string"
+                },
+                "received": {
+                    "type": "number"
+                },
+                "sent": {
+                    "type": "number"
+                },
+                "tx_count": {
+                    "type": "integer"
+                },
+                "unconfirmed_received": {
+                    "type": "number"
+                },
+                "unconfirmed_sent": {
+                    "type": "number"
+                },
+                "unconfirmed_tx_count": {
+                    "type": "integer"
+                },
+                "unspent_tx_count": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.BitcoinBtcComV1": {
+            "type": "object",
+            "properties": {
+                "bitcoin_address_info": {
+                    "$ref": "#/definitions/models.BitcoinAddressInfo"
+                },
+                "btc_asset_id": {
+                    "description": "Primary key",
+                    "type": "integer"
+                },
+                "btc_usd_price": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "wallet_id": {
+                    "description": "Foreign key to global_wallets",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.ChainDetails": {
+            "type": "object",
+            "properties": {
+                "chian_id": {
+                    "type": "integer"
+                },
+                "community_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "native_token_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "usd_value": {
+                    "type": "number"
+                },
+                "wallet_id": {
+                    "type": "integer"
+                },
+                "wrapped_token_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.EvmAssetsDebankV1": {
+            "type": "object",
+            "properties": {
+                "chain_list_json": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "evm_asset_id": {
+                    "description": "Primary key",
+                    "type": "integer"
+                },
+                "nft_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.NFTList"
+                    }
+                },
+                "token_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TokenList"
+                    }
+                },
+                "total_usd_value": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "wallet_id": {
+                    "description": "Foreign key to global_wallets",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.GlobalWallet": {
+            "type": "object",
+            "properties": {
+                "api_endpoint": {
+                    "type": "string"
+                },
+                "api_version": {
+                    "type": "string"
+                },
+                "bitcoin_btc_com_v1": {
+                    "$ref": "#/definitions/models.BitcoinBtcComV1"
+                },
+                "blockchain_type": {
+                    "type": "string"
+                },
+                "chain_details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChainDetails"
+                    }
+                },
+                "evm_assets_debank_v1": {
+                    "$ref": "#/definitions/models.EvmAssetsDebankV1"
+                },
+                "last_updated_at": {
+                    "type": "string"
+                },
+                "portfolio_id": {
+                    "type": "integer"
+                },
+                "solana_assets_moralis_v1": {
+                    "description": "relations use in json responses (optional)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.SolanaAssetsMoralisV1"
+                        }
+                    ]
+                },
+                "wallet_address": {
+                    "type": "string"
+                },
+                "wallet_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.NFT": {
+            "type": "object",
+            "properties": {
+                "amount_raw": {
+                    "type": "string"
+                },
+                "associated_token_address": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "decimals": {
+                    "type": "string"
+                },
+                "mint": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nft_id": {
+                    "type": "integer"
+                },
+                "solana_asset_id": {
+                    "type": "integer"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "userscore": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.NFTList": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "chain": {
+                    "type": "string"
+                },
+                "collection_id": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "contract_id": {
+                    "type": "string"
+                },
+                "contract_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "detail_url": {
+                    "type": "string"
+                },
+                "evm_asset_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "nft id",
+                    "type": "string"
+                },
+                "inner_id": {
+                    "type": "string"
+                },
+                "is_erc1155": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nft_id": {
+                    "description": "database id",
+                    "type": "integer"
+                },
+                "thumbnail_url": {
+                    "type": "string"
+                },
+                "total_supply": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "Attributes   json.RawMessage `gorm:\"type:jsonb\" json:\"attributes\"`\nPayToken     json.RawMessage `gorm:\"type:jsonb\" json:\"pay_token\"`",
+                    "type": "string"
+                },
+                "usd_price": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.SolanaAssetsMoralisV1": {
+            "type": "object",
+            "properties": {
+                "lamports": {
+                    "type": "string"
+                },
+                "last_updated_at": {
+                    "type": "string"
+                },
+                "nfts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.NFT"
+                    }
+                },
+                "solana": {
+                    "type": "string"
+                },
+                "solana_asset_id": {
+                    "type": "integer"
+                },
+                "tokens": {
+                    "description": "relations use in json responses (optional)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Token"
+                    }
+                },
+                "total_nfts_count": {
+                    "type": "integer"
+                },
+                "total_tokens_count": {
+                    "type": "integer"
+                },
+                "wallet_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Token": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "amount_raw": {
+                    "type": "string"
+                },
+                "associated_token_address": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "decimals": {
+                    "type": "string"
+                },
+                "mint": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "solana_asset_id": {
+                    "type": "integer"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "token_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TokenList": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "chain": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "decimals": {
+                    "type": "integer"
+                },
+                "display_symbol": {
+                    "type": "string"
+                },
+                "evm_asset_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "token id",
+                    "type": "string"
+                },
+                "is_core": {
+                    "type": "boolean"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "is_wallet": {
+                    "type": "boolean"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "optimized_symbol": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "price_24h_change": {
+                    "type": "number"
+                },
+                "protocol_id": {
+                    "type": "string"
+                },
+                "raw_amount": {
+                    "type": "number"
+                },
+                "raw_amount_hex_str": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "time_at": {
+                    "type": "number"
+                },
+                "token_id": {
+                    "description": "database id",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
         }
-      }
-    },
-    "/portfolio/btc-wallet/{wallet_id}": {
-      "get": {
-        "description": "Retrieve BTC portfolio details, including BitcoinAddressInfo, for a specific wallet.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["bitcoin"],
-        "summary": "Get BTC portfolio for a wallet",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int",
-            "description": "Wallet ID",
-            "name": "wallet_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "format": "int",
-            "description": "Pagination offset",
-            "name": "offset",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "int",
-            "description": "Pagination limit",
-            "name": "limit",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/models.GlobalWallet"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          }
-        }
-      }
-    },
-    "/portfolio/btc/{btc-address}": {
-      "get": {
-        "description": "Retrieves information for a given Bitcoin address using the BTC.com API.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["bitcoin"],
-        "summary": "Fetch Bitcoin Wallet Information",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Bitcoin Address",
-            "name": "btc-address",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/models.GlobalWallet"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          }
-        }
-      }
-    },
-    "/portfolio/debank/{debank-address}": {
-      "get": {
-        "description": "Retrieves information for a given Debank address using the BTC.com API.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["Debank"],
-        "summary": "Fetch Debank Wallet Information",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "string",
-            "description": "Debank Address",
-            "name": "debank-address",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "string",
-            "description": "Debank access key",
-            "name": "AccessKey",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/models.GlobalWallet"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          }
-        }
-      }
-    },
-    "/portfolio/solana-wallet/{wallet_id}": {
-      "get": {
-        "description": "Retrieve Solana portfolio details, including tokens and NFTs, for a specific wallet.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["solana"],
-        "summary": "Get Solana portfolio for a wallet",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int",
-            "description": "Wallet ID",
-            "name": "wallet_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "format": "int",
-            "description": "Pagination offset",
-            "name": "offset",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "int",
-            "description": "Pagination limit",
-            "name": "limit",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/models.GlobalWallet"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          }
-        }
-      }
-    },
-    "/portfolio/solana/{sol-address}": {
-      "get": {
-        "description": "Fetch Solana portfolio details, including tokens and NFTs, for a specific Solana address.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["solana"],
-        "summary": "Fetch Solana portfolio details for a given Solana address",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "string",
-            "description": "Solana Address",
-            "name": "sol-address",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "string",
-            "description": "Moralis API Key",
-            "name": "x-api-key",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/models.GlobalWallet"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/errors.APIError"
-            }
-          }
-        }
-      }
     }
-  },
-  "definitions": {
-    "errors.APIError": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer"
-        },
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "models.BitcoinAddressInfo": {
-      "type": "object",
-      "properties": {
-        "address_id": {
-          "type": "integer"
-        },
-        "balance": {
-          "type": "number"
-        },
-        "btc_asset_id": {
-          "type": "integer"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "first_tx": {
-          "type": "string"
-        },
-        "last_tx": {
-          "type": "string"
-        },
-        "received": {
-          "type": "number"
-        },
-        "sent": {
-          "type": "number"
-        },
-        "tx_count": {
-          "type": "integer"
-        },
-        "unconfirmed_received": {
-          "type": "number"
-        },
-        "unconfirmed_sent": {
-          "type": "number"
-        },
-        "unconfirmed_tx_count": {
-          "type": "integer"
-        },
-        "unspent_tx_count": {
-          "type": "integer"
-        },
-        "updated_at": {
-          "type": "string"
-        }
-      }
-    },
-    "models.BitcoinBtcComV1": {
-      "type": "object",
-      "properties": {
-        "bitcoin_address_info": {
-          "$ref": "#/definitions/models.BitcoinAddressInfo"
-        },
-        "btc_asset_id": {
-          "description": "Primary key",
-          "type": "integer"
-        },
-        "btc_usd_price": {
-          "type": "number"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "updated_at": {
-          "type": "string"
-        },
-        "wallet_id": {
-          "description": "Foreign key to global_wallets",
-          "type": "integer"
-        }
-      }
-    },
-    "models.ChainDetails": {
-      "type": "object",
-      "properties": {
-        "chian_id": {
-          "type": "integer"
-        },
-        "community_id": {
-          "type": "integer"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "logo_url": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "native_token_id": {
-          "type": "string"
-        },
-        "updated_at": {
-          "type": "string"
-        },
-        "usd_value": {
-          "type": "number"
-        },
-        "wallet_id": {
-          "type": "integer"
-        },
-        "wrapped_token_id": {
-          "type": "string"
-        }
-      }
-    },
-    "models.EvmAssetsDebankV1": {
-      "type": "object",
-      "properties": {
-        "chain_list_json": {
-          "type": "string"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "evm_asset_id": {
-          "description": "Primary key",
-          "type": "integer"
-        },
-        "nft_list": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/models.NFTList"
-          }
-        },
-        "token_list": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/models.TokenList"
-          }
-        },
-        "total_usd_value": {
-          "type": "number"
-        },
-        "updated_at": {
-          "type": "string"
-        },
-        "wallet_id": {
-          "description": "Foreign key to global_wallets",
-          "type": "integer"
-        }
-      }
-    },
-    "models.GlobalWallet": {
-      "type": "object",
-      "properties": {
-        "api_endpoint": {
-          "type": "string"
-        },
-        "api_version": {
-          "type": "string"
-        },
-        "bitcoin_btc_com_v1": {
-          "$ref": "#/definitions/models.BitcoinBtcComV1"
-        },
-        "blockchain_type": {
-          "type": "string"
-        },
-        "chain_details": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/models.ChainDetails"
-          }
-        },
-        "evm_assets_debank_v1": {
-          "$ref": "#/definitions/models.EvmAssetsDebankV1"
-        },
-        "last_updated_at": {
-          "type": "string"
-        },
-        "portfolio_id": {
-          "type": "integer"
-        },
-        "solana_assets_moralis_v1": {
-          "description": "relations use in json responses (optional)",
-          "allOf": [
-            {
-              "$ref": "#/definitions/models.SolanaAssetsMoralisV1"
-            }
-          ]
-        },
-        "wallet_address": {
-          "type": "string"
-        },
-        "wallet_id": {
-          "type": "integer"
-        }
-      }
-    },
-    "models.NFT": {
-      "type": "object",
-      "properties": {
-        "amount_raw": {
-          "type": "string"
-        },
-        "associated_token_address": {
-          "type": "string"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "decimals": {
-          "type": "string"
-        },
-        "mint": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "nft_id": {
-          "type": "integer"
-        },
-        "solana_asset_id": {
-          "type": "integer"
-        },
-        "symbol": {
-          "type": "string"
-        },
-        "updated_at": {
-          "type": "string"
-        },
-        "userscore": {
-          "type": "integer"
-        }
-      }
-    },
-    "models.NFTList": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "integer"
-        },
-        "attributes": {
-          "type": "array"
-        },
-        "chain": {
-          "type": "string"
-        },
-        "collection_id": {
-          "type": "string"
-        },
-        "content": {
-          "type": "string"
-        },
-        "content_type": {
-          "type": "string"
-        },
-        "contract_id": {
-          "type": "string"
-        },
-        "contract_name": {
-          "type": "string"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "detail_url": {
-          "type": "string"
-        },
-        "evm_asset_id": {
-          "type": "integer"
-        },
-        "id": {
-          "description": "nft id",
-          "type": "string"
-        },
-        "inner_id": {
-          "type": "string"
-        },
-        "is_erc1155": {
-          "type": "boolean"
-        },
-        "name": {
-          "type": "string"
-        },
-        "nft_id": {
-          "description": "database id",
-          "type": "integer"
-        },
-        "pay_token": {
-          "type": "object"
-        },
-        "thumbnail_url": {
-          "type": "string"
-        },
-        "total_supply": {
-          "type": "integer"
-        },
-        "updated_at": {
-          "type": "string"
-        },
-        "usd_price": {
-          "type": "number"
-        }
-      }
-    },
-    "models.SolanaAssetsMoralisV1": {
-      "type": "object",
-      "properties": {
-        "lamports": {
-          "type": "string"
-        },
-        "last_updated_at": {
-          "type": "string"
-        },
-        "nfts": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/models.NFT"
-          }
-        },
-        "solana": {
-          "type": "string"
-        },
-        "solana_asset_id": {
-          "type": "integer"
-        },
-        "tokens": {
-          "description": "relations use in json responses (optional)",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/models.Token"
-          }
-        },
-        "total_nfts_count": {
-          "type": "integer"
-        },
-        "total_tokens_count": {
-          "type": "integer"
-        },
-        "wallet_id": {
-          "type": "integer"
-        }
-      }
-    },
-    "models.Token": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "string"
-        },
-        "amount_raw": {
-          "type": "string"
-        },
-        "associated_token_address": {
-          "type": "string"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "decimals": {
-          "type": "string"
-        },
-        "mint": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "solana_asset_id": {
-          "type": "integer"
-        },
-        "symbol": {
-          "type": "string"
-        },
-        "token_id": {
-          "type": "integer"
-        },
-        "updated_at": {
-          "type": "string"
-        }
-      }
-    },
-    "models.TokenList": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "number"
-        },
-        "chain": {
-          "type": "string"
-        },
-        "created_at": {
-          "type": "string"
-        },
-        "decimals": {
-          "type": "integer"
-        },
-        "display_symbol": {
-          "type": "string"
-        },
-        "evm_asset_id": {
-          "type": "integer"
-        },
-        "id": {
-          "description": "token id",
-          "type": "string"
-        },
-        "is_core": {
-          "type": "boolean"
-        },
-        "is_verified": {
-          "type": "boolean"
-        },
-        "is_wallet": {
-          "type": "boolean"
-        },
-        "logo_url": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "optimized_symbol": {
-          "type": "string"
-        },
-        "price": {
-          "type": "number"
-        },
-        "price_24h_change": {
-          "type": "number"
-        },
-        "protocol_id": {
-          "type": "string"
-        },
-        "raw_amount": {
-          "type": "number"
-        },
-        "raw_amount_hex_str": {
-          "type": "string"
-        },
-        "symbol": {
-          "type": "string"
-        },
-        "time_at": {
-          "type": "number"
-        },
-        "token_id": {
-          "description": "database id",
-          "type": "integer"
-        },
-        "updated_at": {
-          "type": "string"
-        }
-      }
-    }
-  }
 }
