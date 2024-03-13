@@ -46,7 +46,7 @@ func BitcoinController(c *gin.Context, db *gorm.DB, apiClient providers.APIClien
 	for _, btcAddress := range btcAddresses {
 		wg.Add(1)
 
-		go process(c, db, apiClient, btcAddress, ch, &wg, &mutex)
+		go fetchAndSave(c, db, apiClient, btcAddress, ch, &wg, &mutex)
 	}
 
 	// Use a goroutine to close the channel after all goroutines have finished
@@ -164,7 +164,7 @@ func save(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse) (*
 }
 
 // Fetch and save the data for one address
-func process(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, wg *sync.WaitGroup, mutex *sync.Mutex) {
+func fetchAndSave(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	defer wg.Done()
 
 	body, err := apiClient.FetchData(address)
@@ -172,12 +172,6 @@ func process(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address
 		errors.HandleHttpError(c, errors.NewBadRequestError("error from api: "+err.Error()))
 		return
 	}
-
-	// resp := bitcoin.BtcApiResponse{}
-	// if err := utils.DecodeJSONResponse(body, &resp); err != nil {
-	// 	errors.HandleHttpError(c, errors.NewBadRequestError("Failed to parse JSON response: "+err.Error()))
-	// 	return
-	// }
 
 	// ignore the Address which returns error or empty response
 	resp := bitcoin.BtcApiResponse{}
