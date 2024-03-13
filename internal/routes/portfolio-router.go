@@ -5,10 +5,13 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/0xbase-Corp/portfolio_svc/internal/controllers"
+	"github.com/0xbase-Corp/portfolio_svc/internal/providers/bitcoin"
 )
 
 var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 	router.GET("/healthy", controllers.HealthCheck)
+
+	bitcoinAPIClient := bitcoin.BitcoinAPI{}
 
 	v1 := router.Group("/api/v1")
 
@@ -18,7 +21,7 @@ var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 
 	v1.GET("/portfolio/solana-wallet/:wallet-id", func(c *gin.Context) { controllers.GetSolanaController(c, db) })
 
-	v1.GET("/portfolio/btc/:btc-address", func(c *gin.Context) { controllers.BitcoinController(c, db) })
+	v1.GET("/portfolio/btc", func(c *gin.Context) { controllers.BitcoinController(c, db, bitcoinAPIClient) })
 
 	v1.GET("/portfolio/btc-wallet/:wallet-id", func(c *gin.Context) { controllers.GetBtcDataController(c, db) })
 

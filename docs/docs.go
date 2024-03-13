@@ -70,6 +70,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/portfolio/btc": {
+            "get": {
+                "description": "Retrieves information for a given Bitcoin address using the BTC.com API.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bitcoin"
+                ],
+                "summary": "Fetch Bitcoin Wallet Information",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "description": "Bitcoin Addresses",
+                        "name": "addresses",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalWallet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/portfolio/btc-wallet/{wallet_id}": {
             "get": {
                 "description": "Retrieve BTC portfolio details, including BitcoinAddressInfo, for a specific wallet.",
@@ -105,56 +155,6 @@ const docTemplate = `{
                         "description": "Pagination limit",
                         "name": "limit",
                         "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.GlobalWallet"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/errors.APIError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/errors.APIError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/errors.APIError"
-                        }
-                    }
-                }
-            }
-        },
-        "/portfolio/btc/{btc-address}": {
-            "get": {
-                "description": "Retrieves information for a given Bitcoin address using the BTC.com API.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "bitcoin"
-                ],
-                "summary": "Fetch Bitcoin Wallet Information",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bitcoin Address",
-                        "name": "btc-address",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -618,9 +618,6 @@ const docTemplate = `{
                 "amount": {
                     "type": "integer"
                 },
-                "attributes": {
-                    "type": "array"
-                },
                 "chain": {
                     "type": "string"
                 },
@@ -668,9 +665,6 @@ const docTemplate = `{
                     "description": "database id",
                     "type": "integer"
                 },
-                "pay_token": {
-                    "type": "object"
-                },
                 "thumbnail_url": {
                     "type": "string"
                 },
@@ -678,6 +672,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updated_at": {
+                    "description": "Attributes   json.RawMessage ` + "`" + `gorm:\"type:jsonb\" json:\"attributes\"` + "`" + `\nPayToken     json.RawMessage ` + "`" + `gorm:\"type:jsonb\" json:\"pay_token\"` + "`" + `",
                     "type": "string"
                 },
                 "usd_price": {
