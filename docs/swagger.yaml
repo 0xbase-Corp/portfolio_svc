@@ -523,12 +523,11 @@ paths:
       description: Fetch Solana portfolio details, including tokens and NFTs, for
         a specific Solana address.
       parameters:
-      - description: Solana Address
-        format: string
-        in: path
-        name: sol-address
+      - description: Solana Addresses
+        in: query
+        name: addresses
         required: true
-        type: string
+        type: array
       - description: Moralis API Key
         format: string
         in: header

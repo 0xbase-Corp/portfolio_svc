@@ -1,2 +1,2 @@
 -- Drop tokens_list table 
-DROP TABLE IF EXISTS tokens_list; 
+DROP TABLE IF EXISTS token_list; 

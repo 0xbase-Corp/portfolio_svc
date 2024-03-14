@@ -324,11 +324,10 @@ const docTemplate = `{
                 "summary": "Fetch Solana portfolio details for a given Solana address",
                 "parameters": [
                     {
-                        "type": "string",
-                        "format": "string",
-                        "description": "Solana Address",
-                        "name": "sol-address",
-                        "in": "path",
+                        "type": "array",
+                        "description": "Solana Addresses",
+                        "name": "addresses",
+                        "in": "query",
                         "required": true
                     },
                     {

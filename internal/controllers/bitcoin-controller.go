@@ -46,7 +46,7 @@ func BitcoinController(c *gin.Context, db *gorm.DB, apiClient providers.APIClien
 	for _, btcAddress := range btcAddresses {
 		wg.Add(1)
 
-		go fetchAndSave(c, db, apiClient, btcAddress, ch, &wg, &mutex)
+		go fetchAndSaveBtc(c, db, apiClient, btcAddress, ch, &wg, &mutex)
 	}
 
 	// Use a goroutine to close the channel after all goroutines have finished
@@ -126,7 +126,8 @@ func GetBtcDataController(c *gin.Context, db *gorm.DB) {
 }
 
 // helper to save data
-func save(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse) (*models.GlobalWallet, error) {
+// TODO: write a common interface in provider which saves the data in database
+func saveBtc(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse) (*models.GlobalWallet, error) {
 	// Begin a new transaction
 	tx := db.Begin()
 
@@ -164,7 +165,8 @@ func save(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse) (*
 }
 
 // Fetch and save the data for one address
-func fetchAndSave(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, wg *sync.WaitGroup, mutex *sync.Mutex) {
+// TODO: write a common interface in provider which saves the data in database
+func fetchAndSaveBtc(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	defer wg.Done()
 
 	body, err := apiClient.FetchData(address)
@@ -179,7 +181,7 @@ func fetchAndSave(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, ad
 		return
 	}
 
-	walletResponse, err := save(db, address, resp)
+	walletResponse, err := saveBtc(db, address, resp)
 	if err != nil {
 		errors.HandleHttpError(c, errors.NewBadRequestError("error from api"+err.Error()))
 		return

@@ -78,8 +78,8 @@ func GetGlobalWalletWithEvmDebankInfo(tx *gorm.DB, debankAddress string) (*Globa
 	return &wallet, nil
 }
 
-func GetWallet(tx *gorm.DB, walletAddress string) (GlobalWallet, error) {
-	var wallet GlobalWallet
+func GetWallet(tx *gorm.DB, walletAddress string) (*GlobalWallet, error) {
+	wallet := &GlobalWallet{}
 
 	err := tx.Where("wallet_address = ?", walletAddress).First(&wallet).Error
 	if err != nil {
@@ -89,8 +89,8 @@ func GetWallet(tx *gorm.DB, walletAddress string) (GlobalWallet, error) {
 	return wallet, nil
 }
 
-func CreateWallet(tx *gorm.DB, walletAddress, blockchainType string) (GlobalWallet, error) {
-	wallet := GlobalWallet{
+func CreateWallet(tx *gorm.DB, walletAddress, blockchainType string) (*GlobalWallet, error) {
+	wallet := &GlobalWallet{
 		WalletAddress:  walletAddress,
 		BlockchainType: blockchainType,
 	}
@@ -102,7 +102,7 @@ func CreateWallet(tx *gorm.DB, walletAddress, blockchainType string) (GlobalWall
 	return wallet, nil
 }
 
-func GetOrCreateWallet(tx *gorm.DB, walletAddress, blockchainType string) (GlobalWallet, error) {
+func GetOrCreateWallet(tx *gorm.DB, walletAddress, blockchainType string) (*GlobalWallet, error) {
 	wallet, err := GetWallet(tx, walletAddress)
 	if err == gorm.ErrRecordNotFound {
 		wallet, err = CreateWallet(tx, walletAddress, blockchainType)
