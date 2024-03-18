@@ -24,12 +24,11 @@ import (
 // @Accept       json
 // @Produce      json
 // @Param        addresses  query      array  true  "Solana Addresses"
-// @Param        x-api-key header string true "Moralis API Key" Format(string)
 // @Success      200 {object} models.GlobalWallet
 // @Failure      400 {object} errors.APIError
 // @Failure      404 {object} errors.APIError
 // @Failure      500 {object} errors.APIError
-// @Router       /portfolio/solana/{sol-address} [get]
+// @Router       /portfolio/solana [get]
 func SolanaController(c *gin.Context, db *gorm.DB, apiClient providers.APIClient) {
 	addresses := c.Query("addresses")
 	solanaAddresses := strings.Split(addresses, ",")
