@@ -359,6 +359,7 @@ paths:
         API.
       parameters:
       - description: Bitcoin Addresses
+        format: string
         in: query
         name: addresses
         required: true
@@ -430,7 +431,7 @@ paths:
       summary: Get BTC portfolio for a wallet
       tags:
       - bitcoin
-  /portfolio/debank/{debank-address}:
+  /portfolio/debank:
     get:
       consumes:
       - application/json
@@ -439,16 +440,10 @@ paths:
       parameters:
       - description: Debank Address
         format: string
-        in: path
-        name: debank-address
+        in: query
+        name: addresses
         required: true
-        type: string
-      - description: Debank access key
-        format: string
-        in: header
-        name: AccessKey
-        required: true
-        type: string
+        type: array
       produces:
       - application/json
       responses:
@@ -479,6 +474,7 @@ paths:
         a specific Solana address.
       parameters:
       - description: Solana Addresses
+        format: string
         in: query
         name: addresses
         required: true

@@ -23,7 +23,7 @@ import (
 // @Tags         solana
 // @Accept       json
 // @Produce      json
-// @Param        addresses  query      array  true  "Solana Addresses"
+// @Param        addresses  query      array  true  "Solana Addresses" Format(string)
 // @Success      200 {object} models.GlobalWallet
 // @Failure      400 {object} errors.APIError
 // @Failure      404 {object} errors.APIError

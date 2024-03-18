@@ -23,13 +23,12 @@ import (
 // @Tags         Debank
 // @Accept       json
 // @Produce      json
-// @Param        debank-address path string true "Debank Address" Format(string)
-// @Param        AccessKey header string true "Debank access key" Format(string)
+// @Param        addresses  query      array  true  "Debank Address" Format(string)
 // @Success      200 {object} models.GlobalWallet
 // @Failure      400 {object} errors.APIError
 // @Failure      404 {object} errors.APIError
 // @Failure      500 {object} errors.APIError
-// @Router       /portfolio/debank/{debank-address} [get]
+// @Router       /portfolio/debank [get]
 func DebankController(c *gin.Context, db *gorm.DB, apiClient providers.APIClient) {
 	addresses := c.Query("addresses")
 	debankAddresses := strings.Split(addresses, ",")
