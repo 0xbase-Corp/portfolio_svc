@@ -20,7 +20,7 @@ import (
 //
 // @Summary      Fetch Debank Wallet Information
 // @Description  Retrieves information for a given Debank address using the BTC.com API.
-// @Tags         Debank
+// @Tags         debank
 // @Accept       json
 // @Produce      json
 // @Param        addresses  query      array  true  "Debank Address" Format(string)

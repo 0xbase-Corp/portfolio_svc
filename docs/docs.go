@@ -196,7 +196,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Debank"
+                    "debank"
                 ],
                 "summary": "Fetch Debank Wallet Information",
                 "parameters": [

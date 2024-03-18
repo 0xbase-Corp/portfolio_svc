@@ -465,7 +465,7 @@ paths:
             $ref: '#/definitions/errors.APIError'
       summary: Fetch Debank Wallet Information
       tags:
-      - Debank
+      - debank
   /portfolio/solana:
     get:
       consumes:
