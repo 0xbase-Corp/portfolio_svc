@@ -7,9 +7,10 @@ import (
 )
 
 type EnvConfigs struct {
-	Port        string `mapstructure:"PORT"`
-	DbPassword  string `mapstructure:"DB_PASSWORD"`
-	DatabaseUrl string `mapstructure:"DATABASE_URL"`
+	Port             string `mapstructure:"PORT"`
+	DbPassword       string `mapstructure:"DB_PASSWORD"`
+	DatabaseUrl      string `mapstructure:"DATABASE_URL"`
+	MoralisAccessKey string `mapstructure:"MORALIS_ACCESS_KEY"`
 }
 
 var EnvConfigVars *EnvConfigs
@@ -44,4 +45,9 @@ func loadEnvVariables() (config *EnvConfigs, err error) {
 		log.Fatal(err)
 	}
 	return config, nil
+}
+
+// GetMoralisAccessKeyHeader returns the value of MORALIS_ACCESS_KEY
+func (env *EnvConfigs) GetMoralisAccessKeyHeader() string {
+	return env.MoralisAccessKey
 }

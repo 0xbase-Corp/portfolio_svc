@@ -3,6 +3,7 @@ package solana
 import (
 	"github.com/0xbase-Corp/portfolio_svc/internal/models"
 	"github.com/0xbase-Corp/portfolio_svc/internal/utils"
+	"github.com/0xbase-Corp/portfolio_svc/shared/configs"
 )
 
 type (
@@ -18,9 +19,12 @@ type (
 	SolanaAPI struct{}
 )
 
-func (b SolanaAPI) FetchData(address string) ([]byte, error) {
+func (s SolanaAPI) FetchData(address string) ([]byte, error) {
 	url := "https://solana-gateway.moralis.io/account/mainnet/" + address
-	headers := map[string]string{}
+	headers := map[string]string{
+		"Accept":    "application/json",
+		"x-api-key": configs.EnvConfigVars.GetMoralisAccessKeyHeader(),
+	}
 
 	body, err := utils.CallAPI(url, headers)
 	if err != nil {

@@ -471,6 +471,40 @@ paths:
       summary: Fetch Debank Wallet Information
       tags:
       - Debank
+  /portfolio/solana:
+    get:
+      consumes:
+      - application/json
+      description: Fetch Solana portfolio details, including tokens and NFTs, for
+        a specific Solana address.
+      parameters:
+      - description: Solana Addresses
+        in: query
+        name: addresses
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalWallet'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Fetch Solana portfolio details for a given Solana address
+      tags:
+      - solana
   /portfolio/solana-wallet/{wallet_id}:
     get:
       consumes:
@@ -514,46 +548,6 @@ paths:
           schema:
             $ref: '#/definitions/errors.APIError'
       summary: Get Solana portfolio for a wallet
-      tags:
-      - solana
-  /portfolio/solana/{sol-address}:
-    get:
-      consumes:
-      - application/json
-      description: Fetch Solana portfolio details, including tokens and NFTs, for
-        a specific Solana address.
-      parameters:
-      - description: Solana Addresses
-        in: query
-        name: addresses
-        required: true
-        type: array
-      - description: Moralis API Key
-        format: string
-        in: header
-        name: x-api-key
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.GlobalWallet'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errors.APIError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errors.APIError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errors.APIError'
-      summary: Fetch Solana portfolio details for a given Solana address
       tags:
       - solana
 swagger: "2.0"
