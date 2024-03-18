@@ -6,6 +6,7 @@ import (
 
 	"github.com/0xbase-Corp/portfolio_svc/internal/controllers"
 	"github.com/0xbase-Corp/portfolio_svc/internal/providers/bitcoin"
+	"github.com/0xbase-Corp/portfolio_svc/internal/providers/debank"
 	"github.com/0xbase-Corp/portfolio_svc/internal/providers/solana"
 )
 
@@ -14,6 +15,7 @@ var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 
 	bitcoinAPIClient := bitcoin.BitcoinAPI{}
 	solanaAPIClient := solana.SolanaAPI{}
+	debankAPIClient := &debank.DebankAPI{}
 
 	v1 := router.Group("/api/v1")
 
@@ -27,6 +29,6 @@ var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 
 	v1.GET("/portfolio/btc-wallet/:wallet-id", func(c *gin.Context) { controllers.GetBtcDataController(c, db) })
 
-	v1.GET("/portfolio/debank/:debank-address", func(c *gin.Context) { controllers.DebankController(c, db) })
+	v1.GET("/portfolio/debank", func(c *gin.Context) { controllers.DebankController(c, db, debankAPIClient) })
 
 }

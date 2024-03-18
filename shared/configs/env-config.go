@@ -7,9 +7,10 @@ import (
 )
 
 type EnvConfigs struct {
-	Port        string `mapstructure:"PORT"`
-	DbPassword  string `mapstructure:"DB_PASSWORD"`
-	DatabaseUrl string `mapstructure:"DATABASE_URL"`
+	Port            string `mapstructure:"PORT"`
+	DbPassword      string `mapstructure:"DB_PASSWORD"`
+	DatabaseUrl     string `mapstructure:"DATABASE_URL"`
+	DebankAccessKey string `mapstructure:"DEBANK_ACCESS_KEY"`
 }
 
 var EnvConfigVars *EnvConfigs
@@ -44,4 +45,9 @@ func loadEnvVariables() (config *EnvConfigs, err error) {
 		log.Fatal(err)
 	}
 	return config, nil
+}
+
+// GetDebankAccessKey returns the value of DEBANK_ACCESS_KEY
+func (env *EnvConfigs) GetDebankAccessKeyHeader() string {
+	return env.DebankAccessKey
 }
