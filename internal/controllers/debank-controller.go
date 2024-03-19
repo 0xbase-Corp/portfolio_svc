@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/0xbase-Corp/portfolio_svc/internal/models"
 	"github.com/0xbase-Corp/portfolio_svc/internal/providers"
@@ -72,6 +73,21 @@ func DebankController(c *gin.Context, db *gorm.DB, apiClient providers.APIClient
 func fetchAndSaveDebank(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	defer wg.Done()
 
+	wallet, err := models.GetWallet(db, address)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("error getting wallet from database: "+err.Error()))
+		return
+	}
+
+	if timeSinceLastUpdate := time.Since(wallet.LastUpdatedAt); timeSinceLastUpdate.Hours() > 24 {
+		updateWalletAndSend(c, db, wallet, address, ch, mutex)
+	} else {
+		fetchFromAPIAndSave(c, db, apiClient, address, ch, mutex)
+	}
+}
+
+// fetch data from api and save data to database
+func fetchFromAPIAndSave(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, mutex *sync.Mutex) {
 	body, err := apiClient.FetchData(address)
 	if err != nil {
 		errors.HandleHttpError(c, errors.NewBadRequestError("error from api: "+err.Error()))
@@ -86,7 +102,26 @@ func fetchAndSaveDebank(c *gin.Context, db *gorm.DB, apiClient providers.APIClie
 
 	walletResponse, err := saveDebank(db, address, resp)
 	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError("error from api"+err.Error()))
+		errors.HandleHttpError(c, errors.NewBadRequestError("error from API: "+err.Error()))
+		return
+	}
+
+	// Use a mutex to safely append to the channel.
+	mutex.Lock()
+	ch <- walletResponse
+	mutex.Unlock()
+}
+
+// update the fetch the data from database
+func updateWalletAndSend(c *gin.Context, db *gorm.DB, wallet *models.GlobalWallet, address string, ch chan<- *models.GlobalWallet, mutex *sync.Mutex) {
+	walletResponse, err := models.GetGlobalWalletWithEvmDebankInfo(db, address)
+	if err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("error getting wallet response from database: "+err.Error()))
+		return
+	}
+
+	if err := models.UpdateWalletLastUpdateAt(db, wallet); err != nil {
+		errors.HandleHttpError(c, errors.NewBadRequestError("error updating last updated at: "+err.Error()))
 		return
 	}
 
