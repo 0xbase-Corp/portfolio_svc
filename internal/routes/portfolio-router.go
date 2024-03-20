@@ -13,8 +13,8 @@ import (
 var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 	router.GET("/healthy", controllers.HealthCheck)
 
-	bitcoinAPIClient := bitcoin.BitcoinAPI{}
-	solanaAPIClient := solana.SolanaAPI{}
+	bitcoinAPIClient := &bitcoin.BitcoinAPI{}
+	solanaAPIClient := &solana.SolanaAPI{}
 	debankAPIClient := &debank.DebankAPI{}
 
 	v1 := router.Group("/api/v1")

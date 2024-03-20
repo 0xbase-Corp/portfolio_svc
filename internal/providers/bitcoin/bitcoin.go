@@ -19,7 +19,7 @@ type (
 	BitcoinAPI struct{}
 )
 
-func (b BitcoinAPI) FetchData(address string) ([]byte, error) {
+func (b *BitcoinAPI) FetchData(address string) ([]byte, error) {
 	url := "https://chain.api.btc.com/v3/address/" + address
 	headers := map[string]string{}
 

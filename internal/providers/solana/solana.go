@@ -19,7 +19,7 @@ type (
 	SolanaAPI struct{}
 )
 
-func (s SolanaAPI) FetchData(address string) ([]byte, error) {
+func (s *SolanaAPI) FetchData(address string) ([]byte, error) {
 	url := "https://solana-gateway.moralis.io/account/mainnet/" + address
 	headers := map[string]string{
 		"Accept":    "application/json",
