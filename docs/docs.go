@@ -86,6 +86,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "array",
+                        "format": "string",
                         "description": "Bitcoin Addresses",
                         "name": "addresses",
                         "in": "query",
@@ -185,7 +186,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/portfolio/debank/{debank-address}": {
+        "/portfolio/debank": {
             "get": {
                 "description": "Retrieves information for a given Debank address using the BTC.com API.",
                 "consumes": [
@@ -195,24 +196,16 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Debank"
+                    "debank"
                 ],
                 "summary": "Fetch Debank Wallet Information",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "array",
                         "format": "string",
                         "description": "Debank Address",
-                        "name": "debank-address",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "format": "string",
-                        "description": "Debank access key",
-                        "name": "AccessKey",
-                        "in": "header",
+                        "name": "addresses",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -260,6 +253,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "array",
+                        "format": "string",
                         "description": "Solana Addresses",
                         "name": "addresses",
                         "in": "query",

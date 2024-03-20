@@ -89,6 +89,16 @@ func GetWallet(tx *gorm.DB, walletAddress string) (*GlobalWallet, error) {
 	return wallet, nil
 }
 
+func UpdateWalletLastUpdateAt(tx *gorm.DB, wallet *GlobalWallet) error {
+	wallet.LastUpdatedAt = time.Now()
+
+	if err := tx.Save(wallet).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func CreateWallet(tx *gorm.DB, walletAddress, blockchainType string) (*GlobalWallet, error) {
 	wallet := &GlobalWallet{
 		WalletAddress:  walletAddress,
