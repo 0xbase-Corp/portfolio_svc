@@ -1,5 +1,20 @@
 basePath: /api/v1
 definitions:
+  controllers.PortfolioAddresses:
+    properties:
+      btc:
+        items:
+          type: string
+        type: array
+      evm:
+        items:
+          type: string
+        type: array
+      sol:
+        items:
+          type: string
+        type: array
+    type: object
   errors.APIError:
     properties:
       code:
@@ -321,6 +336,41 @@ info:
   title: 0xBase-Corp API
   version: "1.0"
 paths:
+  /api/v1/all-portfolio:
+    post:
+      consumes:
+      - application/json
+      description: Retrieves information for all portfolios including Bitcoin, Solana,
+        and EVM addresses.
+      parameters:
+      - description: Portfolio Addresses
+        in: body
+        name: addresses
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.PortfolioAddresses'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/models.GlobalWallet'
+              type: array
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Fetch all portfolio information
+      tags:
+      - portfolio
   /db/test/healthy:
     get:
       consumes:

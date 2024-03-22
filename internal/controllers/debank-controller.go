@@ -73,13 +73,9 @@ func DebankController(c *gin.Context, db *gorm.DB, apiClient providers.APIClient
 func fetchAndSaveDebank(c *gin.Context, db *gorm.DB, apiClient providers.APIClient, address string, ch chan<- *models.GlobalWallet, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	defer wg.Done()
 
-	wallet, err := models.GetWallet(db, address)
-	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError("error getting wallet from database: "+err.Error()))
-		return
-	}
+	wallet, _ := models.GetWallet(db, address)
 
-	if timeSinceLastUpdate := time.Since(wallet.LastUpdatedAt); timeSinceLastUpdate.Hours() > 24 {
+	if timeSinceLastUpdate := time.Since(wallet.LastUpdatedAt); wallet.WalletID != 0 && timeSinceLastUpdate.Hours() > 24 {
 		updateWalletAndSend(c, db, wallet, address, ch, mutex)
 	} else {
 		fetchFromAPIAndSave(c, db, apiClient, address, ch, mutex)
