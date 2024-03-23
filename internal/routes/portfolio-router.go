@@ -31,4 +31,6 @@ var PortfolioRoutes = func(router *gin.Engine, db *gorm.DB) {
 
 	v1.GET("/portfolio/debank", func(c *gin.Context) { controllers.DebankController(c, db, debankAPIClient) })
 
+	v1.POST("/all-portfolio", func(c *gin.Context) { controllers.AllPortfolioController(c, db) })
+
 }

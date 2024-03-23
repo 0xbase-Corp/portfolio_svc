@@ -18,6 +18,58 @@
     "host": "localhost:5050",
     "basePath": "/api/v1",
     "paths": {
+        "/api/v1/all-portfolio": {
+            "post": {
+                "description": "Retrieves information for all portfolios including Bitcoin, Solana, and EVM addresses.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "Fetch all portfolio information",
+                "parameters": [
+                    {
+                        "description": "Portfolio Addresses",
+                        "name": "addresses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.PortfolioAddresses"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.GlobalWallet"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/db/test/healthy": {
             "get": {
                 "description": "do ping",
@@ -349,6 +401,29 @@
         }
     },
     "definitions": {
+        "controllers.PortfolioAddresses": {
+            "type": "object",
+            "properties": {
+                "btc": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "evm": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sol": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "errors.APIError": {
             "type": "object",
             "properties": {
