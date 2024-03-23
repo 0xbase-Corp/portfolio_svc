@@ -49,7 +49,6 @@ type (
 		Symbol                 string    `gorm:"type:varchar(50)" json:"symbol"`
 		UpdatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 		CreatedAt              time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-		UserScore              int       `json:"userscore"`
 	}
 )
 
