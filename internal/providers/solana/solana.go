@@ -20,7 +20,7 @@ type (
 )
 
 func (s *SolanaAPI) FetchData(address string) ([]byte, error) {
-	url := "https://solana-gateway.moralis.io/account/mainnet/" + address
+	url := "https://solana-gateway.moralis.io/account/mainnet/" + address + "/portfolio"
 	headers := map[string]string{
 		"Accept":    "application/json",
 		"x-api-key": configs.EnvConfigVars.GetMoralisAccessKeyHeader(),
