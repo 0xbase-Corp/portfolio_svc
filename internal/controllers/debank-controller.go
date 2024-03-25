@@ -137,7 +137,7 @@ func saveDebank(db *gorm.DB, address string, apiResponse debank.EvmDebankTotalBa
 	// Begin a new transaction
 	tx := db.Begin()
 
-	wallet, err := models.GetOrCreateWallet(tx, address, "Debank")
+	wallet, err := models.GetOrCreateWallet(tx, address, utils.Debank)
 	if err != nil {
 		tx.Rollback()
 		return &models.GlobalWallet{}, err

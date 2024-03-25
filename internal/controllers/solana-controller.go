@@ -143,7 +143,7 @@ func saveSolana(db *gorm.DB, solanaAddress string, apiResponse solana.SolanaApiR
 	// Begin a new transaction
 	tx := db.Begin()
 
-	wallet, err := models.GetOrCreateWallet(tx, solanaAddress, "Solana")
+	wallet, err := models.GetOrCreateWallet(tx, solanaAddress, utils.Solana)
 	if err != nil {
 		tx.Rollback()
 		return &models.GlobalWallet{}, err
@@ -158,6 +158,13 @@ func saveSolana(db *gorm.DB, solanaAddress string, apiResponse solana.SolanaApiR
 
 	// Attempt to save the Solana asset data along with the associated tokens and NFTs.
 	if err := models.SaveSolanaData(tx, &solanaAsset, apiResponse.Tokens, apiResponse.NFTs); err != nil {
+		tx.Rollback()
+		return &models.GlobalWallet{}, err
+	}
+
+	// save the solana price feed
+	// for now hard code the USD -> TODO: change
+	if err := FetchAndSaveCoingeckoPriceForCrypto(tx, utils.Solana, "usd"); err != nil {
 		tx.Rollback()
 		return &models.GlobalWallet{}, err
 	}

@@ -31,6 +31,7 @@ func (GlobalWallet) TableName() string {
 func GetGlobalWalletWithBitcoinInfo(tx *gorm.DB, btcAddress string) (*GlobalWallet, error) {
 	wallet := GlobalWallet{}
 
+	// Retrieve the wallet information including Bitcoin data
 	err := tx.Where("wallet_address = ?", btcAddress).
 		Preload("BitcoinBtcComV1").
 		Preload("BitcoinBtcComV1.BitcoinAddressInfo").
@@ -39,6 +40,15 @@ func GetGlobalWalletWithBitcoinInfo(tx *gorm.DB, btcAddress string) (*GlobalWall
 	if err != nil {
 		return nil, err
 	}
+
+	// Fetch the CoingeckoPriceFeed based on the blockchain type
+	coingeckoPriceFeed, err := GetCoingeckoPriceFeedByName(tx, wallet.BlockchainType)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the CoingeckoPriceFeed to the wallet
+	wallet.BitcoinBtcComV1.CoingeckoPriceFeed = coingeckoPriceFeed
 
 	return &wallet, nil
 }
@@ -56,6 +66,15 @@ func GetGlobalWalletWithSolanaInfo(tx *gorm.DB, solAddress string) (*GlobalWalle
 	if err != nil {
 		return nil, err
 	}
+
+	// Fetch the CoingeckoPriceFeed based on the blockchain type
+	coingeckoPriceFeed, err := GetCoingeckoPriceFeedByName(tx, wallet.BlockchainType)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the CoingeckoPriceFeed to the wallet
+	wallet.SolanaAssetsMoralisV1.CoingeckoPriceFeed = coingeckoPriceFeed
 
 	return &wallet, nil
 }

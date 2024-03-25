@@ -131,7 +131,7 @@ func saveBtc(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse)
 	// Begin a new transaction
 	tx := db.Begin()
 
-	wallet, err := models.GetOrCreateWallet(tx, btcAddress, "Bitcoin")
+	wallet, err := models.GetOrCreateWallet(tx, btcAddress, utils.Bitcoin)
 	if err != nil {
 		tx.Rollback()
 		return &models.GlobalWallet{}, err
@@ -146,6 +146,13 @@ func saveBtc(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse)
 
 	// Proceed to call SaveBitcoinData with the updated BitcoinAddressInfo and btcComV1
 	if err := models.SaveBitcoinData(tx, &apiResponse.Data.Data, &btcComV1); err != nil {
+		tx.Rollback()
+		return &models.GlobalWallet{}, err
+	}
+
+	// save the bitcoin price feed
+	// for now hard code the USD -> TODO: change
+	if err := FetchAndSaveCoingeckoPriceForCrypto(tx, utils.Bitcoin, "usd"); err != nil {
 		tx.Rollback()
 		return &models.GlobalWallet{}, err
 	}
@@ -183,7 +190,7 @@ func fetchAndSaveBtc(c *gin.Context, db *gorm.DB, apiClient providers.APIClient,
 
 	walletResponse, err := saveBtc(db, address, resp)
 	if err != nil {
-		errors.HandleHttpError(c, errors.NewBadRequestError("error from api"+err.Error()))
+		errors.HandleHttpError(c, errors.NewBadRequestError("error from api: "+err.Error()))
 		return
 	}
 
