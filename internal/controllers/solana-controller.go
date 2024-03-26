@@ -164,7 +164,7 @@ func saveSolana(db *gorm.DB, solanaAddress string, apiResponse solana.SolanaApiR
 
 	// save the solana price feed
 	// for now hard code the USD -> TODO: change
-	if err := FetchAndSaveCoingeckoPriceForCrypto(tx, utils.Solana, "usd"); err != nil {
+	if err := HandleCoingeckoPrice(tx, utils.Solana, "usd"); err != nil {
 		tx.Rollback()
 		return &models.GlobalWallet{}, err
 	}

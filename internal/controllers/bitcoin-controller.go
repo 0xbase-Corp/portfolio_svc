@@ -152,7 +152,7 @@ func saveBtc(db *gorm.DB, btcAddress string, apiResponse bitcoin.BtcApiResponse)
 
 	// save the bitcoin price feed
 	// for now hard code the USD -> TODO: change
-	if err := FetchAndSaveCoingeckoPriceForCrypto(tx, utils.Bitcoin, "usd"); err != nil {
+	if err := HandleCoingeckoPrice(tx, utils.Bitcoin, "usd"); err != nil {
 		tx.Rollback()
 		return &models.GlobalWallet{}, err
 	}

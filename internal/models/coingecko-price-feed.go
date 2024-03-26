@@ -13,8 +13,8 @@ type (
 		Name      string    `gorm:"type:varchar(255)" json:"name"`
 		Price     float64   `gorm:"type:float" json:"price"`
 		Currency  string    `gorm:"type:varchar(50)" json:"currency"`
-		UpdatedAt time.Time `gorm:"type:timestamp" json:"updated_at"`
-		CreatedAt time.Time `gorm:"type:timestamp" json:"created_at"`
+		UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+		CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	}
 )
 

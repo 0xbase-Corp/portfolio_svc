@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"strings"
+	"time"
 
 	"github.com/0xbase-Corp/portfolio_svc/internal/models"
 	"github.com/0xbase-Corp/portfolio_svc/internal/providers/coingecko"
@@ -9,18 +9,30 @@ import (
 	"gorm.io/gorm"
 )
 
-func FetchAndSaveCoingeckoPriceForCrypto(db *gorm.DB, cryptoID, currency string) error {
+func HandleCoingeckoPrice(tx *gorm.DB, cryptoID, currency string) error {
+	fetched, _ := models.GetCoingeckoPriceFeedByName(tx, cryptoID)
+
+	if fetched != nil {
+		if timeSinceLastUpdate := time.Since(fetched.UpdatedAt); timeSinceLastUpdate.Minutes() > 2 {
+			if err := fetchAndSaveCoingeckoPriceForCrypto(tx, cryptoID, currency); err != nil {
+				return err
+			}
+		}
+	} else {
+		if err := fetchAndSaveCoingeckoPriceForCrypto(tx, cryptoID, currency); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func fetchAndSaveCoingeckoPriceForCrypto(db *gorm.DB, cryptoID, currency string) error {
 	priceFeedClient := &coingecko.CoingeckoAPI{}
 
 	body, err := priceFeedClient.FetchData(cryptoID, currency)
 	if err != nil {
 		return err
-	}
-
-	// check the response body if it contains the rate limit error message then ignore to update or create the price feed
-	if strings.Contains(string(body), "You've exceeded the Rate Limit") {
-		// if rate limit is exceeded, return nil not need to update the price feed
-		return nil
 	}
 
 	resp := coingecko.CryptoResponse{}
@@ -40,5 +52,4 @@ func FetchAndSaveCoingeckoPriceForCrypto(db *gorm.DB, cryptoID, currency string)
 	}
 
 	return nil
-
 }
