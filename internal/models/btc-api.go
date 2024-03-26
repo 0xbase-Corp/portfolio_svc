@@ -16,6 +16,7 @@ type (
 		CreatedAt   time.Time `gorm:"" json:"created_at"`
 
 		BitcoinAddressInfo *BitcoinAddressInfo `gorm:"foreignKey:BtcAssetID" json:"bitcoin_address_info,omitempty"`
+		CoingeckoPriceFeed *CoingeckoPriceFeed `gorm:"-" json:"coingecko_price_feed,omitempty"`
 	}
 
 	// BitcoinAddressInfo represents the bitcoin_address_info table.

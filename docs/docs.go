@@ -426,6 +426,9 @@ const docTemplate = `{
                 "btc_usd_price": {
                     "type": "number"
                 },
+                "coingecko_price_feed": {
+                    "$ref": "#/definitions/models.CoingeckoPriceFeed"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -472,6 +475,30 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "wrapped_token_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CoingeckoPriceFeed": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "database id",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -668,6 +695,9 @@ const docTemplate = `{
         "models.SolanaAssetsMoralisV1": {
             "type": "object",
             "properties": {
+                "coingecko_price_feed": {
+                    "$ref": "#/definitions/models.CoingeckoPriceFeed"
+                },
                 "lamports": {
                     "type": "string"
                 },
